@@ -1,6 +1,8 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
+
+from .forms import ExtendedUserCreationForm
 from .models import Membership
 
 
@@ -30,16 +32,16 @@ def login_view(request):
 
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = ExtendedUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            membership_type = request.POST.get("membership_type")
+            membership_type = form.cleaned_data['membership_type']
             Membership.objects.create(user=user, membership_type=membership_type)
             return redirect('eAcademyApp:login')
     else:
-        form = UserCreationForm()
-        form.fields['membership_type'].widget.choices = Membership.MEMBERSHIP_CHOICES  # Set choices for membership_type field
+        form = ExtendedUserCreationForm()
     return render(request, 'register.html', {'form': form})
+
 
 
 

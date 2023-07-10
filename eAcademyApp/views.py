@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, authenticate
+from .models import Membership
 
 
 def homepage(request):
@@ -17,7 +18,7 @@ def login_view(request):
         if user is not None:
             # User is authenticated, log in the user
             login(request, user)
-            return redirect('home')  # Replace 'home' with the URL name for your homepage
+            return redirect('eAcademyApp:homepage')
         else:
             # Authentication failed, show an error message
             error_message = 'Invalid username or password.'
@@ -29,13 +30,17 @@ def login_view(request):
 
 def register_view(request):
     if request.method == 'POST':
-        # Handle register form submission
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')  # Replace 'login' with the URL name for your login page
+            user = form.save()
+            membership_type = request.POST.get("membership_type")
+            Membership.objects.create(user=user, membership_type=membership_type)
+            return redirect('eAcademyApp:login')
     else:
-        # Display the register form
         form = UserCreationForm()
+        form.fields['membership_type'].widget.choices = Membership.MEMBERSHIP_CHOICES  # Set choices for membership_type field
     return render(request, 'register.html', {'form': form})
+
+
+
 

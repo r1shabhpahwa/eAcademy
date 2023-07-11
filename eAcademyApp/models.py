@@ -43,10 +43,15 @@ class Payment(models.Model):
 
 
 class Student(models.Model):
+    USER_TYPE_CHOICES = [
+        ('student', 'Student'),
+        ('professor', 'Professor'),
+    ]
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES, default='student')
     attendance = models.PositiveIntegerField(default=0)
     views = models.PositiveIntegerField(default=0)
-    grade = models.DecimalField(max_digits=5, decimal_places=2)
+    grade = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __str__(self):
         return self.user.username

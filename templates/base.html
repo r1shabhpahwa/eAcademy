@@ -33,20 +33,34 @@
                 </li>
                 {% if request.user.is_authenticated %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/logout/">Logout</a>
+                        <a class="nav-link" href="/accounts/logout/">Logout</a>
                     </li>
                 {% else %}
-                <li class="nav-item {% if request.path == '/login/' %}active{% endif %}">
-                    <a class="nav-link" href="/login/">Login</a>
+                <li class="nav-item {% if request.path == '/accounts/login/' %}active{% endif %}">
+                    <a class="nav-link" href="/accounts/login/">Login</a>
                 </li>
-                <li class="nav-item {% if request.path == '/register/' %}active{% endif %}">
-                    <a class="nav-link" href="/register/">Register</a>
+                <li class="nav-item {% if request.path == '/accounts/register/' %}active{% endif %}">
+                    <a class="nav-link" href="/accounts/register/">Register</a>
                 </li>
                 {% endif %}
 
             </ul>
         </div>
     </nav>
+
+    <!-- Display messages -->
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     {% block content %}
     {% endblock %}

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.urls import reverse
 import stripe
@@ -23,7 +24,14 @@ def login_view(request):
         if user is not None:
             # User is authenticated, log in the user
             login(request, user)
-            return redirect('eAcademyApp:homepage')
+            # Check if 'next' parameter exists in the URL
+            next_url = request.GET.get('next')
+            if next_url:
+                # Redirect to the 'next' URL if it exists
+                return redirect(next_url)
+            else:
+                # Redirect to the default homepage if 'next' URL doesn't exist
+                return redirect('eAcademyApp:homepage')
         else:
             # Authentication failed, show an error message
             error_message = 'Invalid username or password.'
@@ -81,6 +89,7 @@ def course_list(request):
     return render(request, 'course.html', {'courses': courses})
 
 
+@login_required
 def create_course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES)
@@ -95,6 +104,7 @@ def create_course(request):
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+@login_required
 def payment_view(request):
     if request.method == 'POST':
         # Retrieve the payment token from the form submission
@@ -124,6 +134,7 @@ def payment_view(request):
     return render(request, 'payment.html')
 
 
+@login_required
 def membership_view(request):
     # Check if the user is authenticated
     if not request.user.is_authenticated:
@@ -141,6 +152,7 @@ def membership_view(request):
     return render(request, 'membership.html', context)
 
 
+@login_required
 def upgrade_view(request, membership_type):
     try:
         user_membership = Membership.objects.get(user=request.user)

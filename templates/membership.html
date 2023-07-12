@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <h1>Membership</h1>
+    {% if user_membership %}
+      <p>Your current membership tier: {{ user_membership.membership_type }}</p>
+    {% else %}
+      <p>You are not currently subscribed to any membership tier.</p>
+    {% endif %}
+
+    {% if user_membership and user_membership.membership_type != 'gold' %}
+      <h2>Upgrade Options:</h2>
+      <ul class="list-group">
+        {% if user_membership.membership_type != 'silver' %}
+          <li class="list-group-item">
+            <form action="{% url 'eAcademyApp:upgrade' 'silver' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">Upgrade to Silver ($10/month)</button>
+            </form>
+          </li>
+        {% endif %}
+        <li class="list-group-item">
+          <form action="{% url 'eAcademyApp:upgrade' 'gold' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Upgrade to Gold ($20/month)</button>
+          </form>
+        </li>
+      </ul>
+    {% endif %}
+  </div>
+{% endblock %}

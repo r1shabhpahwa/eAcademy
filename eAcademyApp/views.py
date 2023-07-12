@@ -122,3 +122,41 @@ def payment_view(request):
             return render(request, 'payment.html', {'error': error_msg})
 
     return render(request, 'payment.html')
+
+
+def membership_view(request):
+    # Check if the user is authenticated
+    if not request.user.is_authenticated:
+        # Redirect the user to the login page with the next parameter set to the membership view URL
+        return redirect(f'/login/?next=/membership/')
+
+    try:
+        user_membership = Membership.objects.get(user=request.user)
+    except Membership.DoesNotExist:
+        user_membership = None
+
+    context = {
+        'user_membership': user_membership,
+    }
+    return render(request, 'membership.html', context)
+
+
+def upgrade_view(request, membership_type):
+    try:
+        user_membership = Membership.objects.get(user=request.user)
+        if membership_type == 'silver' and user_membership.membership_type != 'silver':
+            # Perform the upgrade to Silver logic
+            user_membership.membership_type = 'silver'
+            user_membership.save()
+            messages.success(request, 'You have successfully upgraded to Silver membership!')
+        elif membership_type == 'gold' and user_membership.membership_type != 'gold':
+            # Perform the upgrade to Gold logic
+            user_membership.membership_type = 'gold'
+            user_membership.save()
+            messages.success(request, 'You have successfully upgraded to Gold membership!')
+        else:
+            messages.warning(request, 'You are already subscribed to the selected membership tier.')
+    except Membership.DoesNotExist:
+        messages.error(request, 'You are not currently subscribed to any membership tier.')
+
+    return redirect(reverse('eAcademyApp:membership'))

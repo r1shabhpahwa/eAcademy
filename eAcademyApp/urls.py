@@ -10,4 +10,6 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('courses/', views.course_list, name='course_list'),
     path('courses/create/', views.create_course, name='create_course'),
+    path('membership/', views.membership_view, name='membership'),
+    path('upgrade/<str:membership_type>/', views.upgrade_view, name='upgrade')
 ]

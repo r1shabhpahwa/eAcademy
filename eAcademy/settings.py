@@ -123,3 +123,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STRIPE_SECRET_KEY = 'sk_test_51NT9cUB88nwCkyuHxYIhq8cZVwACt1papDDkAEV9WqpLvq7xtzHdSTy5YuYa6SW8FGUAEVyZoKDR2lwUZPZWlwDm00vpicgtaj'
+
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51NT9cUB88nwCkyuHRMaoTQUoENfsXMQcLahU8bZP3tHSQGyv8B78aE6ClLiaLJFkFs7Rh6S1AYfxnLB3mkNctQxb00NoEWBxvW'

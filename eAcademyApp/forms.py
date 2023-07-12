@@ -8,7 +8,7 @@ class ExtendedUserCreationForm(UserCreationForm):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
-    membership_type = forms.ChoiceField(choices=Membership.MEMBERSHIP_CHOICES)
+    membership_type = forms.ChoiceField(choices=Membership.MEMBERSHIP_CHOICES, initial='bronze')
 
     class Meta:
         model = User

@@ -1,0 +1,25 @@
+<!-- payment.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Payment</h1>
+  {% if error %}
+    <p>{{ error }}</p>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+    <script
+      src="https://checkout.stripe.com/checkout.js"
+      class="stripe-button"
+      data-key="{{ STRIPE_PUBLISHABLE_KEY }}"
+      data-amount="1000"
+      data-name="eAcademyApp"
+      data-description="Membership Upgrade"
+      data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+      data-locale="auto"
+      data-currency="usd"
+    >
+    </script>
+  </form>
+{% endblock %}

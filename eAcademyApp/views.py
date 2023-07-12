@@ -1,8 +1,12 @@
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
+from django.shortcuts import render, redirect
+from django.urls import reverse
+import stripe
+
 from .forms import ExtendedUserCreationForm, CourseForm
 from .models import Membership, Course, Student, User
-from django.contrib import messages
-from django.shortcuts import render, redirect
 
 
 def homepage(request):
@@ -53,6 +57,12 @@ def register_view(request):
             )
             student = Student.objects.create(user=user, user_type='student')
 
+            # Check if the selected membership type is an upgrade
+            if membership_type != 'bronze':
+                messages.info(request, 'This is a paid option. Silver costs $10 per month, and Gold is $20 per month.')
+                # Redirect to the payment page
+                return redirect(reverse('eAcademyApp:payment'))
+
             Membership.objects.create(user=user, membership_type=membership_type)
 
             return redirect('eAcademyApp:login')
@@ -82,6 +92,33 @@ def create_course(request):
     return render(request, 'create_course.html', {'form': form})
 
 
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
+def payment_view(request):
+    if request.method == 'POST':
+        # Retrieve the payment token from the form submission
+        token = request.POST.get('stripeToken')
 
+        # Create a charge with Stripe
+        try:
+            charge = stripe.Charge.create(
+                amount=1000,  # Amount in cents
+                currency='usd',
+                description='Payment',
+                source=token,
+            )
+
+            # If the charge is successful, handle the success scenario
+            if charge.status == 'succeeded':
+                # Perform any necessary actions, such as updating the user's membership status
+
+                # Redirect the user to a success page
+                return redirect('eAcademyApp:payment_success')
+
+        except stripe.error.CardError as e:
+            # Handle any card errors
+            error_msg = e.user_message
+            return render(request, 'payment.html', {'error': error_msg})
+
+    return render(request, 'payment.html')

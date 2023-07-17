@@ -11,5 +11,7 @@ urlpatterns = [
     path('courses/', views.course_list, name='course_list'),
     path('courses/create/', views.create_course, name='create_course'),
     path('membership/', views.membership_view, name='membership'),
+    path('contact/', views.contact, name='contact'),
     path('upgrade/<str:membership_type>/', views.upgrade_view, name='upgrade')
+
 ]

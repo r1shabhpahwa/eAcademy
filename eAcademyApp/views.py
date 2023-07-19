@@ -3,7 +3,6 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
 import stripe
@@ -97,10 +96,6 @@ def contact(request):
         email = request.POST['email']
         message = request.POST['message']
 
-        # Do something with the contact form data
-        # For example, you could store it in a database
-
-        # Redirect to a thank you page or homepage after successful submission
         return render(request, 'thank_you.html')
 
     return render(request, 'contact.html')
@@ -191,3 +186,8 @@ def upgrade_view(request, membership_type):
         messages.error(request, 'You are not currently subscribed to any membership tier.')
 
     return redirect(reverse('eAcademyApp:membership'))
+
+def student_list(request):
+    students = Student.objects.filter(user__student__user_type='student')
+    return render(request, 'student_list.html', {'students': students})
+

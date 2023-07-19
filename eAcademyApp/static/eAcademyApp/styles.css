@@ -4,3 +4,43 @@
     width: 18px; /* Adjust the size as per your preference */
     height: 18px; /* Adjust the size as per your preference */
 }
+
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: 1px solid black;
+}
+
+.student-table th,
+.student-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid black;
+}
+
+.student-table th {
+    background-color: #f2f2f2;
+    text-align: center;
+}
+
+
+.student-table th {
+    text-align: center;
+}
+
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.student-table tbody tr:hover {
+    background-color: #f2f2f2;
+}
+

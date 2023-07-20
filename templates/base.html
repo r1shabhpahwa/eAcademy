@@ -31,6 +31,9 @@
                 <li class="nav-item {% if request.path == '/contact/' %}active{% endif %}">
                     <a class="nav-link" href="/contact/">Contact</a>
                 </li>
+                <li class="nav-item {% if request.path == '/aboutus/' %}active{% endif %}">
+                    <a class="nav-link" href="/aboutus/">About Us</a>
+                </li>
                 {% if request.user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="/accounts/logout/">Logout</a>

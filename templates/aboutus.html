@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+            <div class="col-md-6">
+                <h2>About Us</h2>
+                <p>eAcademy is a leading online learning platform that offers high-quality courses in various disciplines. Our mission is to provide accessible and affordable education to learners around the world.</p>
+                <p>Explore our diverse course catalog and enhance your skills with expert-led instruction. Whether you're a beginner or an experienced professional, there's something for everyone at eAcademy.</p>
+                <p>Join thousands of students who have already benefitted from our courses and take the next step in your educational journey with eAcademy.</p>
+            </div>
+            <div class="col-md-6">
+                <h2>Meet Our Team</h2>
+                <ul>
+                    <li>Rishabh Pahwa <a href="https://www.linkedin.com/in/rishabh-pahwa"><img src="{% static 'eAcademyApp/linkedin.png' %}" alt="LinkedIn" class="linkedin-icon"></a></li>
+                    <li>Tanmay Verma <a href="https://www.linkedin.com/in/tanmayverma24"><img src="{% static 'eAcademyApp/linkedin.png' %}" alt="LinkedIn" class="linkedin-icon"></a></li>
+                    <li>Aashi Thakkar <a href="https://www.linkedin.com/in/aashithakkar29"><img src="{% static 'eAcademyApp/linkedin.png' %}" alt="LinkedIn" class="linkedin-icon"></a></li>
+                    <li>Sahil Soni <a href="https://www.linkedin.com/in/lialh4"><img src="{% static 'eAcademyApp/linkedin.png' %}" alt="LinkedIn" class="linkedin-icon"></a></li>
+                </ul>
+                <p>Our dedicated team of professionals is passionate about education and committed to providing you with the best learning experience. Feel free to connect with us on LinkedIn and stay updated with our latest developments.</p>
+            </div>
+        </div>
+</div>
+{% endblock %}

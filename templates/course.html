@@ -4,7 +4,14 @@
     <div class="container mt-5">
         <h1>Courses</h1>
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-6">
+                {% if user.is_authenticated and user.student.isteacher %}
+                    <a href="/courses/create" class="btn btn-success mt-3 mb-3">Create New Course</a>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
                 <div class="course-list">
                     {% for course in courses %}
                         <div class="card mb-3">
@@ -19,31 +26,6 @@
                         <p>No courses available.</p>
                     {% endfor %}
                 </div>
-            </div>
-            <div class="col-md-4">
-                {% if user.is_authenticated and user.is_teacher %}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">Create New Course</h5>
-                            <form method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                <div class="form-group">
-                                    <label for="title">Title</label>
-                                    <input type="text" class="form-control" id="title" name="title" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="description">Description</label>
-                                    <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label for="files">Files</label>
-                                    <input type="file" class="form-control-file" id="files" name="files" required>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Create</button>
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
             </div>
         </div>
     </div>

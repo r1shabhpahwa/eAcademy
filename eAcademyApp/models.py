@@ -58,3 +58,6 @@ class Student(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def isteacher(self):
+        return self.user_type == 'professor'

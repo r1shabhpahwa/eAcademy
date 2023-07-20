@@ -2,11 +2,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.urls import reverse
 import stripe
-
+import os
 
 from .forms import ExtendedUserCreationForm, CourseForm
 from .models import Membership, Course, Student, User
@@ -90,6 +91,7 @@ def course_list(request):
     courses = Course.objects.all()
     return render(request, 'course.html', {'courses': courses})
 
+
 def contact(request):
     if request.method == 'POST':
         name = request.POST['name']
@@ -101,15 +103,13 @@ def contact(request):
     return render(request, 'contact.html')
 
 
-
-
 @login_required
 def create_course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('course_list')
+            return redirect('eAcademyApp:course_list')
     else:
         form = CourseForm()
     return render(request, 'create_course.html', {'form': form})
@@ -187,7 +187,24 @@ def upgrade_view(request, membership_type):
 
     return redirect(reverse('eAcademyApp:membership'))
 
+
 def student_list(request):
     students = Student.objects.filter(user__student__user_type='student')
     return render(request, 'student_list.html', {'students': students})
 
+
+def aboutus(request):
+    return render(request, 'aboutus.html')
+
+
+def serve_course_file(request, file_name):
+    file_path = os.path.join('course_files', file_name)
+
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as file:
+            response = HttpResponse(file.read(),
+                                    content_type='application/pdf')  # Adjust content_type accordingly for different file types
+            response['Content-Disposition'] = f'inline; filename="{file_name}"'
+            return response
+    else:
+        return HttpResponse("File not found", status=404)

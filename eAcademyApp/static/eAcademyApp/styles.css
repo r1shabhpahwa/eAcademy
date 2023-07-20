@@ -1,8 +1,17 @@
 /* styles.css */
 
 .linkedin-icon {
-    width: 18px; /* Adjust the size as per your preference */
-    height: 18px; /* Adjust the size as per your preference */
+    background-image: url('linkedin.png');
+    width: 18px;
+    height: 18px;
+    background-size: cover;
+}
+
+.cart-icon {
+    background-image: url('cart_icon.png');
+    width: 30px;
+    height: 30px;
+    background-size: cover;
 }
 
 .student-table {

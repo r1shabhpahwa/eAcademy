@@ -1,13 +1,14 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.urls import reverse
 import stripe
 import os
+from .models import InstructorRequest
 
 from .forms import ExtendedUserCreationForm, CourseForm
 from .models import Membership, Course, Student, User, CartItem
@@ -274,3 +275,16 @@ def cart(request):
     else:
         cart_items = []
     return render(request, 'cart.html', {'cart_items': cart_items})
+
+@login_required
+@user_passes_test(lambda user: user.is_superuser)
+def instructor_requests_view(request):
+    instructor_requests = InstructorRequest.objects.all()
+    return render(request, 'instructor_requests.html', {'instructor_requests': instructor_requests})
+
+
+def accept_instructor_request_view(request, user_id):
+    return redirect('eAcademyApp:instructor_requests')
+
+def reject_instructor_request_view(request, user_id):
+    return redirect('eAcademyApp:instructor_requests')

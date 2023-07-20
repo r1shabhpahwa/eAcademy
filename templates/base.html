@@ -91,5 +91,23 @@
     {% block content %}
     {% endblock %}
 
+{% if request.user.is_authenticated %}
+    {% if request.user.is_superuser %}
+        <li class="nav-item {% if request.path == '/instructor-requests/' %}active{% endif %}">
+            <a class="nav-link" href="{% url 'eAcademyApp:instructor_requests' %}">Instructor Requests</a>
+        </li>
+    {% endif %}
+    <li class="nav-item">
+        <a class="nav-link" href="/accounts/logout/">Logout</a>
+    </li>
+{% else %}
+    <li class="nav-item {% if request.path == '/accounts/login/' %}active{% endif %}">
+        <a class="nav-link" href="/accounts/login/">Login</a>
+    </li>
+    <li class="nav-item {% if request.path == '/accounts/register/' %}active{% endif %}">
+        <a class="nav-link" href="/accounts/register/">Register</a>
+    </li>
+{% endif %}
+
 </body>
 </html>

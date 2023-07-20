@@ -21,4 +21,8 @@ urlpatterns = [
     path('add_to_cart/<int:course_id>/', views.add_to_cart, name='add_to_cart'),
     path('remove_from_cart/<int:course_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('cart/', views.cart, name='cart'),
+    path('instructor-requests/', views.instructor_requests_view, name='instructor_requests'),
+    path('accept-instructor-request/<int:user_id>/', views.accept_instructor_request_view, name='accept_instructor_request'),
+    path('reject-instructor-request/<int:user_id>/', views.reject_instructor_request_view, name='reject_instructor_request'),
+
 ]

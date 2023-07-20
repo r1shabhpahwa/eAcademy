@@ -1,3 +1,4 @@
+<!-- course.html -->
 {% extends 'base.html' %}
 
 {% block content %}
@@ -19,7 +20,20 @@
                                 <h5 class="card-title">{{ course.title }}</h5>
                                 <p class="card-text">{{ course.description }}</p>
                                 <p class="card-text">Instructor: {{ course.instructor.username }}</p>
-                                <a href="{{ course.files.url }}" class="btn btn-primary">Download Files</a>
+                                <a href="{{ course.files.url }}" class="btn btn-primary">Download Course Outline</a>
+                                {% if user.is_authenticated and not user.student.isteacher %}
+                                    {% if user.student.is_course_in_cart %}
+                                        <form method="post" action="{% url 'eAcademyApp:remove_from_cart' course.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Remove from Cart</button>
+                                        </form>
+                                    {% else %}
+                                        <form method="post" action="{% url 'eAcademyApp:add_to_cart' course.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success">Add to Cart</button>
+                                        </form>
+                                    {% endif %}
+                                {% endif %}
                             </div>
                         </div>
                     {% empty %}

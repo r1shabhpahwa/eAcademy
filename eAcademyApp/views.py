@@ -3,14 +3,14 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.urls import reverse
 import stripe
 import os
 
 from .forms import ExtendedUserCreationForm, CourseForm
-from .models import Membership, Course, Student, User
+from .models import Membership, Course, Student, User, CartItem
 
 # Stripe API Key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -40,8 +40,8 @@ def login_view(request):
                 return redirect('eAcademyApp:homepage')
         else:
             # Authentication failed, show an error message
-            error_message = 'Invalid username or password.'
-            return render(request, 'login.html', {'error_message': error_message})
+            messages.warning(request, 'Invalid username or password, please try again.')
+            return redirect('eAcademyApp:login')
     else:
         # Display the login form
         return render(request, 'login.html')
@@ -79,7 +79,12 @@ def register_view(request):
 
             Membership.objects.create(user=user, membership_type=membership_type)
 
-            return redirect('eAcademyApp:login')
+            # Feedback message
+            messages.info(request,
+                          'You have been successfully registered, please login now!')
+
+            # Redirect to the login page
+            return redirect(reverse('eAcademyApp:login'))
     else:
         form = ExtendedUserCreationForm()
     return render(request, 'register.html', {'form': form})
@@ -176,11 +181,17 @@ def upgrade_view(request, membership_type):
     try:
         user_membership = Membership.objects.get(user=request.user)
         if membership_type == 'silver' and user_membership.membership_type != 'silver':
+            # Payment handling
+            # TODO
+
             # Perform the upgrade to Silver logic
             user_membership.membership_type = 'silver'
             user_membership.save()
             messages.success(request, 'You have successfully upgraded to Silver membership!')
         elif membership_type == 'gold' and user_membership.membership_type != 'gold':
+            # Payment handling
+            # TODO
+
             # Perform the upgrade to Gold logic
             user_membership.membership_type = 'gold'
             user_membership.save()
@@ -188,7 +199,7 @@ def upgrade_view(request, membership_type):
         else:
             messages.warning(request, 'You are already subscribed to the selected membership tier.')
     except Membership.DoesNotExist:
-        messages.error(request, 'You are not currently subscribed to any membership tier.')
+        messages.error(request, 'Membership tiers are applicable only for students. ')
 
     return redirect(reverse('eAcademyApp:membership'))
 
@@ -213,3 +224,47 @@ def serve_course_file(request, file_name):
             return response
     else:
         return HttpResponse("File not found", status=404)
+
+
+def add_to_cart(request, course_id):
+    if request.user.is_authenticated and not request.user.student.isteacher():
+        course = get_object_or_404(Course, pk=course_id)
+        student = request.user.student
+
+        # Check if the course is not already in the cart to avoid duplicates
+        if not CartItem.objects.filter(student=student, course=course).exists():
+            cart_item = CartItem(student=student, course=course)
+            cart_item.save()
+
+            # Feedback message
+            messages.info(request, 'Course added to cart!')
+        else:
+            # If the course is already in the cart, you can show a different message if you want.
+            messages.warning(request, 'Course is already in the cart.')
+
+    else:
+        messages.warning(request, 'Only students are eligible to buy courses')
+
+    # Redirect to the homepage
+    return redirect('eAcademyApp:course_list')
+
+
+def remove_from_cart(request, course_id):
+
+    # Remove from cart logic
+    # TODO
+
+    # Feedback message
+    messages.info(request, 'Course removed from cart!')
+
+    # Redirect to the homepage
+    return redirect('eAcademyApp:course_list')
+
+
+def cart(request):
+    student = request.user.student
+    if request.user.is_authenticated and not request.user.student.isteacher():
+        cart_items = CartItem.objects.filter(student=student)
+    else:
+        cart_items = []
+    return render(request, 'cart.html', {'cart_items': cart_items})

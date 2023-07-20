@@ -1,0 +1,40 @@
+<!-- cart.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Cart</h1>
+        <div class="row">
+            <div class="col-md-12">
+                {% if cart_items %}
+                    <div class="card">
+                        <div class="card-body">
+                            <ul class="list-group">
+                                {% for cart_item in cart_items %}
+                                    <li class="list-group-item">
+                                        <h4>{{ cart_item.course.title }}</h4>
+                                        <p><strong>Instructor:</strong> {{ cart_item.course.instructor.username }}</p>
+                                        <form method="post" action="{% url 'eAcademyApp:homepage' %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Remove from cart</button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <div class="text-center mt-3">
+                                <form method="post" action="{% url 'eAcademyApp:homepage' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success">Checkout</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info" role="alert">
+                        Your cart is empty.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

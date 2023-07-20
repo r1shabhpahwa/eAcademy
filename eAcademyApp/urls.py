@@ -18,5 +18,7 @@ urlpatterns = [
     path('student/', views.student_list, name='student_list'),
     path('upgrade/<str:membership_type>/', views.upgrade_view, name='upgrade'),
     path('course_files/<path:file_name>/', views.serve_course_file, name='serve_course_file'),
-
+    path('add_to_cart/<int:course_id>/', views.add_to_cart, name='add_to_cart'),
+    path('remove_from_cart/<int:course_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/', views.cart, name='cart'),
 ]

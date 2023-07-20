@@ -61,3 +61,14 @@ class Student(models.Model):
 
     def isteacher(self):
         return self.user_type == 'professor'
+
+    def is_course_in_cart(self, course_id):
+        return self.cartitem_set.filter(course_id=course_id).exists()
+
+
+class CartItem(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.student.user.username} - {self.course.title}"

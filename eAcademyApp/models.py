@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.conf import settings
 
 
 class Course(models.Model):
@@ -72,3 +73,10 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f"{self.student.user.username} - {self.course.title}"
+
+
+class InstructorRequest(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Instructor Request - {self.user.username}"

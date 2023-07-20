@@ -266,7 +266,7 @@ def remove_from_cart(request, course_id):
     # Redirect to the homepage
     return redirect('eAcademyApp:course_list')
 
-
+@login_required
 def cart(request):
     student = request.user.student
     if request.user.is_authenticated and not request.user.student.isteacher():

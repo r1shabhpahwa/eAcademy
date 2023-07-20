@@ -1,5 +1,11 @@
 /* styles.css */
 
+body {
+    background-image: url("background.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
 .linkedin-icon {
     background-image: url('linkedin.png');
     width: 18px;

@@ -26,7 +26,7 @@
                 </li>
 
                 <!-- Show/Hide membership section -->
-                {% if request.user.is_authenticated and not request.user.student.isteacher %}
+                {% if request.user.is_authenticated and not request.user.student.isteacher and not request.user.is_superuser %}
                     <li class="nav-item {% if request.path == '/membership/' %}active{% endif %}">
                         <a class="nav-link" href="/membership/">Membership</a>
                     </li>
@@ -51,24 +51,31 @@
             <ul class="navbar-nav">
 
                 <!-- Cart Button -->
-                <li class="nav-item {% if request.path == '/cart/' %}active{% endif %}">
-                    <a class="nav-link" href="/cart/">
-                        <div class="cart-icon"></div>
-                    </a>
-                </li>
+                {% if request.user.is_authenticated and not request.user.student.isteacher and not request.user.is_superuser %}
+                    <li class="nav-item {% if request.path == '/cart/' %}active{% endif %}">
+                        <a class="nav-link" href="/cart/">
+                            <div class="cart-icon"></div>
+                       </a>
+                    </li>
+                {% endif %}
 
                 <!-- Display login and logout buttons -->
                 {% if request.user.is_authenticated %}
+                    {% if request.user.is_superuser %}
+                        <li class="nav-item {% if request.path == '/instructor-requests/' %}active{% endif %}">
+                            <a class="nav-link" href="{% url 'eAcademyApp:instructor_requests' %}">Instructor Requests</a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/accounts/logout/">Logout</a>
+                    <a class="nav-link" href="/accounts/logout/">Logout</a>
                     </li>
-                {% else %}
-                    <li class="nav-item {% if request.path == '/accounts/login/' %}active{% endif %}">
-                        <a class="nav-link" href="/accounts/login/">Login</a>
-                    </li>
-                    <li class="nav-item {% if request.path == '/accounts/register/' %}active{% endif %}">
-                        <a class="nav-link" href="/accounts/register/">Register</a>
-                    </li>
+                    {% else %}
+                        <li class="nav-item {% if request.path == '/accounts/login/' %}active{% endif %}">
+                            <a class="nav-link" href="/accounts/login/">Login</a>
+                        </li>
+                        <li class="nav-item {% if request.path == '/accounts/register/' %}active{% endif %}">
+                            <a class="nav-link" href="/accounts/register/">Register</a>
+                        </li>
                 {% endif %}
             </ul>
         </div>
@@ -90,24 +97,6 @@
 
     {% block content %}
     {% endblock %}
-
-{% if request.user.is_authenticated %}
-    {% if request.user.is_superuser %}
-        <li class="nav-item {% if request.path == '/instructor-requests/' %}active{% endif %}">
-            <a class="nav-link" href="{% url 'eAcademyApp:instructor_requests' %}">Instructor Requests</a>
-        </li>
-    {% endif %}
-    <li class="nav-item">
-        <a class="nav-link" href="/accounts/logout/">Logout</a>
-    </li>
-{% else %}
-    <li class="nav-item {% if request.path == '/accounts/login/' %}active{% endif %}">
-        <a class="nav-link" href="/accounts/login/">Login</a>
-    </li>
-    <li class="nav-item {% if request.path == '/accounts/register/' %}active{% endif %}">
-        <a class="nav-link" href="/accounts/register/">Register</a>
-    </li>
-{% endif %}
 
 </body>
 </html>

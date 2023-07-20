@@ -246,7 +246,7 @@ def add_to_cart(request, course_id):
             messages.info(request, 'Course added to cart!')
         else:
             # If the course is already in the cart, you can show a different message if you want.
-            messages.warning(request, 'Course is already in the cart.')
+            messages.info(request, 'Course is already in the cart.')
 
     else:
         messages.warning(request, 'Only students are eligible to buy courses')

@@ -26,14 +26,14 @@
                 </li>
 
                 <!-- Show/Hide membership section -->
-                {% if request.user.is_authenticated and not request.user.isteacher %}
+                {% if request.user.is_authenticated and not request.user.student.isteacher %}
                     <li class="nav-item {% if request.path == '/membership/' %}active{% endif %}">
                         <a class="nav-link" href="/membership/">Membership</a>
                     </li>
                 {% endif %}
 
                 <!-- Show/Hide student management section -->
-                {% if request.user.is_authenticated and request.user.isteacher %}
+                {% if request.user.is_authenticated and request.user.student.isteacher %}
                     <li class="nav-item {% if request.path == '/student-management/' %}active{% endif %}">
                         <a class="nav-link" href="/student/">Student Management</a>
                     </li>

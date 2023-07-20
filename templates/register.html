@@ -10,10 +10,21 @@
                         <form method="post">
                             {% csrf_token %}
                             {% for field in form %}
-                                <div class="form-group">
-                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                    {{ field }}
-                                </div>
+                                {% if field.name == 'register_as' %}
+                                    <div class="form-group">
+                                        <label>{{ field.label }}</label><br>
+                                        {% for choice in field %}
+                                            {{ choice }}
+                                            <label for="{{ choice.id_for_label }}">{{ choice.choice_label }}</label>
+                                            <br>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <div class="form-group">
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {{ field }}
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                             <div class="text-center">
                                 <button type="submit" class="btn btn-primary">Register</button>

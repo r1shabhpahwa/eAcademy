@@ -60,7 +60,7 @@ def register_view(request):
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             password = form.cleaned_data['password1']
-            membership_type = form.cleaned_data['membership_type']
+            register_as = form.cleaned_data['register_as']
 
             user = User.objects.create_user(
                 username=username,
@@ -69,24 +69,30 @@ def register_view(request):
                 last_name=last_name,
                 password=password
             )
-            student = Student.objects.create(user=user, user_type='student')
+
+            if register_as == 'student':
+                Student.objects.create(user=user, user_type='student')
+            elif register_as == 'instructor':
+                Student.objects.create(user=user, user_type='instructor')
 
             # Check if the selected membership type is an upgrade
+            membership_type = form.cleaned_data['membership_type']
             if membership_type != 'bronze':
                 messages.info(request, 'This is a paid option. Silver costs $10 per month, and Gold is $20 per month.')
                 # Redirect to the payment page
                 return redirect(reverse('eAcademyApp:payment'))
 
+            # Create the membership record for the user
             Membership.objects.create(user=user, membership_type=membership_type)
 
             # Feedback message
-            messages.info(request,
-                          'You have been successfully registered, please login now!')
+            messages.info(request, 'You have been successfully registered, please login now!')
 
             # Redirect to the login page
             return redirect(reverse('eAcademyApp:login'))
     else:
         form = ExtendedUserCreationForm()
+
     return render(request, 'register.html', {'form': form})
 
 

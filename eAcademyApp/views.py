@@ -12,6 +12,9 @@ import os
 from .forms import ExtendedUserCreationForm, CourseForm
 from .models import Membership, Course, Student, User
 
+# Stripe API Key
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 def homepage(request):
     return render(request, 'homepage.html')
@@ -98,7 +101,14 @@ def contact(request):
         email = request.POST['email']
         message = request.POST['message']
 
-        return render(request, 'thank_you.html')
+        # Handle message data
+        # TODO
+
+        # Feedback message
+        messages.info(request, 'Thank you for contacting us! Your message has been received and we will get back to you shortly')
+
+        # Redirect to the homepage
+        return redirect(reverse('eAcademyApp:homepage'))
 
     return render(request, 'contact.html')
 
@@ -115,12 +125,10 @@ def create_course(request):
     return render(request, 'create_course.html', {'form': form})
 
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
 @login_required
 def payment_view(request):
     if request.method == 'POST':
+
         # Retrieve the payment token from the form submission
         token = request.POST.get('stripeToken')
 
@@ -136,6 +144,7 @@ def payment_view(request):
             # If the charge is successful, handle the success scenario
             if charge.status == 'succeeded':
                 # Perform any necessary actions, such as updating the user's membership status
+                # TODO
 
                 # Redirect the user to a success page
                 return redirect('eAcademyApp:payment_success')
@@ -150,10 +159,6 @@ def payment_view(request):
 
 @login_required
 def membership_view(request):
-    # Check if the user is authenticated
-    if not request.user.is_authenticated:
-        # Redirect the user to the login page with the next parameter set to the membership view URL
-        return redirect(f'/login/?next=/membership/')
 
     try:
         user_membership = Membership.objects.get(user=request.user)
@@ -203,7 +208,7 @@ def serve_course_file(request, file_name):
     if os.path.exists(file_path):
         with open(file_path, 'rb') as file:
             response = HttpResponse(file.read(),
-                                    content_type='application/pdf')  # Adjust content_type accordingly for different file types
+                                    content_type='application/pdf')
             response['Content-Disposition'] = f'inline; filename="{file_name}"'
             return response
     else:

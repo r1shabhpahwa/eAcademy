@@ -9,8 +9,7 @@ from django.urls import reverse
 import stripe
 import os
 from .models import InstructorRequest
-
-from .forms import ExtendedUserCreationForm, CourseForm
+from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm
 from .models import Membership, Course, Student, User, CartItem
 
 # Stripe API Key
@@ -211,9 +210,6 @@ def upgrade_view(request, membership_type):
     return redirect(reverse('eAcademyApp:membership'))
 
 
-from django.shortcuts import render, redirect
-from .models import Student
-from .forms import StudentUpdateForm  # Create this form based on your Student model
 
 def student_list(request):
     students = Student.objects.filter(user__student__user_type='student')
@@ -239,6 +235,11 @@ def student_list(request):
 
 
 
+def my_account(request):
+    # Retrieve the currently logged-in student user
+    student_user = request.user.student
+
+    return render(request, 'my_account.html', {'student_user': student_user})
 
 def aboutus(request):
     return render(request, 'aboutus.html')

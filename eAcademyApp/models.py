@@ -54,7 +54,6 @@ class Student(models.Model):
     last_name = models.CharField(max_length=100, null=True)
     email = models.EmailField(unique=True, null=True)
     attendance = models.PositiveIntegerField(default=0)
-    views = models.PositiveIntegerField(default=0)
     grade = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __str__(self):

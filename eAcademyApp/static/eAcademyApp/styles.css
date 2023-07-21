@@ -11,6 +11,8 @@ body {
     width: 18px;
     height: 18px;
     background-size: cover;
+    display: inline-block;
+    margin-left: 5px;
 }
 
 .cart-icon {
@@ -20,11 +22,16 @@ body {
     background-size: cover;
 }
 
+
+
+
 .student-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 50px;
     border: 1px solid black;
+
+
 }
 
 .student-table th,
@@ -39,15 +46,11 @@ body {
     text-align: center;
 }
 
-
-.student-table th {
-    text-align: center;
-}
-
-
 .container {
     max-width: 800px;
     margin: 0 auto;
+
+
 }
 
 h1 {
@@ -59,10 +62,93 @@ h1 {
     background-color: #f2f2f2;
 }
 
-
-
 .button-space {
-    margin-top: 20px;
+    margin-top: 30px;
 }
+
+/* Custom styles for the "About Us" page */
+
+.container1 {
+  padding: 30px;
+    margin: 0px;
+
+}
+
+.jumbotron {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+    max-width: 800px;
+    padding: 20px;
+
+}
+
+.jumbotron h2 {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.jumbotron p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+
+
+/* Media query for smaller screens */
+@media screen and (max-width: 767px) {
+  .jumbotron {
+    padding: 20px;
+  }
+}
+
+
+/* Custom styles for the "My Account" page */
+
+.container2{
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+
+/* Style the "My Account" table */
+.my-account-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border: 1px solid black;
+
+}
+
+.my-account-table th,
+.my-account-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid black;
+}
+
+.my-account-table th,td {
+  background-color: #f2f2f2;
+    text-align: center;
+}
+
+
+
+
+
+
 
 

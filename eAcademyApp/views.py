@@ -148,6 +148,9 @@ def create_course(request):
             form = CourseForm(request.POST, request.FILES)
             if form.is_valid():
                 form.save()
+                # Feedback message
+                messages.info(request, 'New course has been created!')
+
                 return redirect('eAcademyApp:course_list')
         else:
             form = CourseForm()
@@ -234,29 +237,38 @@ def upgrade_view(request, membership_type):
     return redirect(reverse('eAcademyApp:membership'))
 
 
+@login_required
 def student_list(request):
-    students = Student.objects.filter(user__student__user_type='student')
+    # Check if user is an instructor
+    if request.user.student.isteacher():
 
-    if request.method == 'POST':
-        form = StudentUpdateForm(request.POST, students=students)
-        if form.is_valid():
-            for student in students:
-                student.attendance = form.cleaned_data[f'attendance_{student.id}']
-                student.grade = form.cleaned_data[f'grade_{student.id}']
-                student.save()
+        students = Student.objects.filter(user__student__user_type='student')
 
-            # Add a success message to be shown after successful form submission
-            messages.success(request, 'Your changes has been successfully saved!')
+        if request.method == 'POST':
+            form = StudentUpdateForm(request.POST, students=students)
+            if form.is_valid():
+                for student in students:
+                    student.attendance = form.cleaned_data[f'attendance_{student.id}']
+                    student.grade = form.cleaned_data[f'grade_{student.id}']
+                    student.save()
 
-            # Redirect to the same page after form submission
-            return redirect('eAcademyApp:student_list')
+                # Add a success message to be shown after successful form submission
+                messages.success(request, 'Your changes has been successfully saved!')
+
+                # Redirect to the same page after form submission
+                return redirect('eAcademyApp:student_list')
+
+        else:
+            form = StudentUpdateForm(students=students)
+
+        return render(request, 'student_list.html', {'students': students, 'form': form})
 
     else:
-        form = StudentUpdateForm(students=students)
+        messages.info(request,'Only instructors are allowed to access this page.')
+        return redirect(reverse('eAcademyApp:homepage'))
 
-    return render(request, 'student_list.html', {'students': students, 'form': form})
 
-
+@login_required
 def my_account(request):
     # Retrieve the currently logged-in student user
     student_user = request.user.student
@@ -281,6 +293,7 @@ def serve_course_file(request, file_name):
         return HttpResponse("File not found", status=404)
 
 
+@login_required
 def add_to_cart(request, course_id):
     if request.user.is_authenticated and not request.user.student.isteacher():
         course = get_object_or_404(Course, pk=course_id)
@@ -304,6 +317,7 @@ def add_to_cart(request, course_id):
     return redirect('eAcademyApp:course_list')
 
 
+@login_required
 def remove_from_cart(request, course_id):
 
     # Remove from cart logic
@@ -315,29 +329,22 @@ def remove_from_cart(request, course_id):
     # Redirect to the homepage
     return redirect('eAcademyApp:course_list')
 
+
 @login_required
-def cart(request):
-    student = request.user.student
-    if request.user.is_authenticated and not request.user.student.isteacher():
-        cart_items = CartItem.objects.filter(student=student)
+def cart_view(request):
+
+    if request.user.student.isteacher():
+        # Feedback message
+        messages.info(request, 'Only students are eligible to make purchases!')
+
+        # Redirect to the course list
+        return redirect('eAcademyApp:course_list')
     else:
-        cart_items = []
-    return render(request, 'cart.html', {'cart_items': cart_items})
+        student = request.user.student
+        cart_items = CartItem.objects.filter(student=student)
+        return render(request, 'cart.html', {'cart_items': cart_items})
 
-# @login_required
-# @user_passes_test(lambda user: user.is_superuser)
-# def instructor_requests_view(request):
-#     instructor_requests = InstructorRequest.objects.all()
-#     return render(request, 'instructor_requests.html', {'instructor_requests': instructor_requests})
-#
-#
-# def accept_instructor_request_view(request, user_id):
-#     return redirect('eAcademyApp:instructor_requests')
-#
-# def reject_instructor_request_view(request, user_id):
-#     return redirect('eAcademyApp:instructor_requests')
 
-# Updated instructor_requests_view to handle approval and rejection
 @login_required
 @user_passes_test(lambda user: user.is_superuser)
 def instructor_requests_view(request):

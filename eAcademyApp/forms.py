@@ -22,7 +22,8 @@ class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter the instructor field queryset to only include professors
-        self.fields['instructor'].queryset = Student.objects.filter(user_type='professor').select_related('user')
+        self.fields['instructor'].queryset = User.objects.filter(student__user_type='professor')\
+            .select_related('student')
 
     class Meta:
         model = Course
@@ -33,6 +34,7 @@ class CourseForm(forms.ModelForm):
             'instructor': forms.Select(attrs={'class': 'form-control'}),
             'files': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
+
 
 class StudentUpdateForm(forms.Form):
 

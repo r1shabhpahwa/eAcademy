@@ -57,7 +57,9 @@
                         </a>
                     </li>
                 {% endif %}
+            </ul>
 
+            <ul class="navbar-nav">
                 <!-- Display login and logout buttons -->
                 {% if request.user.is_authenticated %}
                     {% if request.user.is_superuser %}

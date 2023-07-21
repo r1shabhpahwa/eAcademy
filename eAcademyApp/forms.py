@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Membership, Course
+from .models import Membership, Course, Student
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -18,6 +18,12 @@ class ExtendedUserCreationForm(UserCreationForm):
 
 
 class CourseForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Filter the instructor field queryset to only include professors
+        self.fields['instructor'].queryset = Student.objects.filter(user_type='professor').select_related('user')
+
     class Meta:
         model = Course
         fields = ('title', 'description', 'instructor', 'files')

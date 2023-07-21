@@ -20,33 +20,6 @@ def homepage(request):
     return render(request, 'homepage.html')
 
 
-# def login_view(request):
-#     if request.method == 'POST':
-#         # Handle login form submission
-#         # Use the submitted data to authenticate the user
-#         username = request.POST['username']
-#         password = request.POST['password']
-#         user = authenticate(request, username=username, password=password)
-#         if user is not None:
-#             # User is authenticated, log in the user
-#             login(request, user)
-#             # Check if 'next' parameter exists in the URL
-#             next_url = request.GET.get('next')
-#             if next_url:
-#                 # Redirect to the 'next' URL if it exists
-#                 return redirect(next_url)
-#             else:
-#                 # Redirect to the default homepage if 'next' URL doesn't exist
-#                 return redirect('eAcademyApp:homepage')
-#         else:
-#             # Authentication failed, show an error message
-#             messages.warning(request, 'Invalid username or password, please try again.')
-#             return redirect('eAcademyApp:login')
-#     else:
-#         # Display the login form
-#         return render(request, 'login.html')
-
-# Updated login_view to check instructor approval status
 def login_view(request):
     if request.method == 'POST':
         # Handle login form submission
@@ -84,6 +57,7 @@ def login_view(request):
     else:
         # Display the login form
         return render(request, 'login.html')
+
 
 def register_view(request):
     if request.user.is_authenticated:
@@ -138,6 +112,7 @@ def register_view(request):
         form = ExtendedUserCreationForm()
     return render(request, 'register.html', {'form': form})
 
+
 def logout_view(request):
     logout(request)
     return redirect('eAcademyApp:homepage')
@@ -168,14 +143,21 @@ def contact(request):
 
 @login_required
 def create_course(request):
-    if request.method == 'POST':
-        form = CourseForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('eAcademyApp:course_list')
+    if request.user.student.isteacher():
+        if request.method == 'POST':
+            form = CourseForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                return redirect('eAcademyApp:course_list')
+        else:
+            form = CourseForm()
+        return render(request, 'create_course.html', {'form': form})
     else:
-        form = CourseForm()
-    return render(request, 'create_course.html', {'form': form})
+        # Feedback message
+        messages.info(request, 'Only instructors are allowed to access this page.')
+
+        # Redirect to the homepage
+        return redirect(reverse('eAcademyApp:course_list'))
 
 
 @login_required
@@ -252,7 +234,6 @@ def upgrade_view(request, membership_type):
     return redirect(reverse('eAcademyApp:membership'))
 
 
-
 def student_list(request):
     students = Student.objects.filter(user__student__user_type='student')
 
@@ -276,12 +257,12 @@ def student_list(request):
     return render(request, 'student_list.html', {'students': students, 'form': form})
 
 
-
 def my_account(request):
     # Retrieve the currently logged-in student user
     student_user = request.user.student
 
     return render(request, 'my_account.html', {'student_user': student_user})
+
 
 def aboutus(request):
     return render(request, 'aboutus.html')

@@ -11,6 +11,8 @@ body {
     width: 18px;
     height: 18px;
     background-size: cover;
+    display: inline-block;
+    margin-left: 5px;
 }
 
 .cart-icon {
@@ -48,6 +50,7 @@ body {
 .container {
     max-width: 800px;
     margin: 0 auto;
+
 }
 
 h1 {
@@ -64,5 +67,54 @@ h1 {
 .button-space {
     margin-top: 20px;
 }
+
+/* Custom styles for the "About Us" page */
+
+.container1 {
+  padding: 30px;
+    margin: 0px;
+
+}
+
+.jumbotron {
+  background-color: #f8f9fa;
+  border-radius: 10px;
+    max-width: 800px;
+    padding: 20px;
+
+}
+
+.jumbotron h2 {
+  font-size: 32px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.jumbotron p {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+ul li {
+  font-size: 18px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+
+
+/* Media query for smaller screens */
+@media screen and (max-width: 767px) {
+  .jumbotron {
+    padding: 20px;
+  }
+}
+
 
 

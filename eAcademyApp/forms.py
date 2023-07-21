@@ -30,3 +30,24 @@ class CourseForm(forms.ModelForm):
             'instructor': forms.Select(attrs={'class': 'form-control'}),
             'files': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
+
+class StudentUpdateForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+        students = kwargs.pop('students')
+        super(StudentUpdateForm, self).__init__(*args, **kwargs)
+
+        for student in students:
+            self.fields[f'attendance_{student.id}'] = forms.IntegerField(
+                label=f'Attendance for {student.first_name} {student.last_name}',
+                initial=student.attendance,
+                min_value=0,
+            )
+
+            self.fields[f'grade_{student.id}'] = forms.DecimalField(
+                label=f'Grade for {student.first_name} {student.last_name}',
+                initial=student.grade,
+                min_value=0,
+                max_value=100,
+                decimal_places=2,
+            )

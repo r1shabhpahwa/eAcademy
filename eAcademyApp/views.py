@@ -211,9 +211,33 @@ def upgrade_view(request, membership_type):
     return redirect(reverse('eAcademyApp:membership'))
 
 
+from django.shortcuts import render, redirect
+from .models import Student
+from .forms import StudentUpdateForm  # Create this form based on your Student model
+
 def student_list(request):
     students = Student.objects.filter(user__student__user_type='student')
-    return render(request, 'student_list.html', {'students': students})
+
+    if request.method == 'POST':
+        form = StudentUpdateForm(request.POST, students=students)
+        if form.is_valid():
+            for student in students:
+                student.attendance = form.cleaned_data[f'attendance_{student.id}']
+                student.grade = form.cleaned_data[f'grade_{student.id}']
+                student.save()
+
+            # Add a success message to be shown after successful form submission
+            messages.success(request, 'Your changes has been successfully saved!')
+
+            # Redirect to the same page after form submission
+            return redirect('eAcademyApp:student_list')
+
+    else:
+        form = StudentUpdateForm(students=students)
+
+    return render(request, 'student_list.html', {'students': students, 'form': form})
+
+
 
 
 def aboutus(request):

@@ -9,18 +9,39 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Username</th>
-                                <th>Actions</th>
+                                <th class="text-center align-middle">Username</th>
+                                <th class="text-center align-middle">Status</th>
+                                <th class="text-center align-middle">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for request in instructor_requests %}
                                 <tr>
-                                    <td>{{ request.user.username }}</td>
-                                    <!-- Add other columns related to the instructor request -->
-                                    <td>
-                                        <a href="{% url 'eAcademyApp:accept_instructor_request' request.user.id %}" class="btn btn-success">Accept</a>
-                                        <a href="{% url 'eAcademyApp:reject_instructor_request' request.user.id %}" class="btn btn-danger">Reject</a>
+                                    <td class="text-center align-middle">
+                                        {% if request.is_approved %}
+                                            {{ request.user.username }} <span class="text-success">&#10004;</span>
+                                        {% else %}
+                                            {{ request.user.username }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        {% if request.is_approved %}
+                                            <span class="text-success">Approved</span>
+                                        {% else %}
+                                            <span class="text-warning">Pending</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        {% if not request.is_approved %}
+                                            <form class="d-inline-block mr-2" method="post" action="{% url 'eAcademyApp:accept_instructor_request' request.user.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-success">Accept</button>
+                                            </form>
+                                            <form class="d-inline-block" method="post" action="{% url 'eAcademyApp:reject_instructor_request' request.user.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-danger">Reject</button>
+                                            </form>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}

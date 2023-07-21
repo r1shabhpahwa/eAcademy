@@ -5,19 +5,16 @@ from .models import Membership, Course
 
 
 class ExtendedUserCreationForm(UserCreationForm):
-    CHOICES = [
-        ('student', 'Student'),
-        ('instructor', 'Instructor'),
-    ]
+
     email = forms.EmailField()
     first_name = forms.CharField(max_length=30)
     last_name = forms.CharField(max_length=30)
     membership_type = forms.ChoiceField(choices=Membership.MEMBERSHIP_CHOICES, initial='bronze')
-    register_as = forms.ChoiceField(choices=CHOICES, widget=forms.RadioSelect)
+    register_as = forms.ChoiceField(choices=(('student', 'Student'), ('professor', 'Professor')))
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2', 'membership_type', 'register_as']
+        fields = ['first_name', 'last_name', 'username', 'email', 'password1', 'password2', 'membership_type']
 
 
 class CourseForm(forms.ModelForm):

@@ -49,13 +49,12 @@
 
             <!-- Right Section -->
             <ul class="navbar-nav">
-
                 <!-- Cart Button -->
                 {% if request.user.is_authenticated and not request.user.student.isteacher and not request.user.is_superuser %}
                     <li class="nav-item {% if request.path == '/cart/' %}active{% endif %}">
                         <a class="nav-link" href="/cart/">
                             <div class="cart-icon"></div>
-                       </a>
+                        </a>
                     </li>
                 {% endif %}
 
@@ -67,18 +66,27 @@
                         </li>
                     {% endif %}
                     <li class="nav-item">
-                    <a class="nav-link" href="/accounts/logout/">Logout</a>
+                        <a class="nav-link" href="/accounts/logout/">Logout</a>
                     </li>
-                    {% else %}
-                        <li class="nav-item {% if request.path == '/accounts/login/' %}active{% endif %}">
-                            <a class="nav-link" href="/accounts/login/">Login</a>
-                        </li>
-                        <li class="nav-item {% if request.path == '/accounts/register/' %}active{% endif %}">
-                            <a class="nav-link" href="/accounts/register/">Register</a>
-                        </li>
+                {% else %}
+                    <li class="nav-item {% if request.path == '/accounts/login/' %}active{% endif %}">
+                        <a class="nav-link" href="/accounts/login/">Login</a>
+                    </li>
+                    <li class="nav-item {% if request.path == '/accounts/register/' %}active{% endif %}">
+                        <a class="nav-link" href="/accounts/register/">Register</a>
+                    </li>
                 {% endif %}
-
             </ul>
+
+            <!-- My Account link for student users -->
+            {% if user.is_authenticated and user.student %}
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'eAcademyApp:my_account' %}">My Account</a>
+                    </li>
+                </ul>
+            {% endif %}
+
         </div>
     </nav>
 

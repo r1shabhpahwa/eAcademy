@@ -14,7 +14,7 @@
                                     <li class="list-group-item">
                                         <h4>{{ cart_item.course.title }}</h4>
                                         <p><strong>Instructor:</strong> {{ cart_item.course.instructor.username }}</p>
-                                        <form method="post" action="{% url 'eAcademyApp:homepage' %}">
+                                        <form method="post" action="{% url 'eAcademyApp:remove_from_cart' cart_item.course.id %}?next={{ request.path }}">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-danger">Remove from cart</button>
                                         </form>

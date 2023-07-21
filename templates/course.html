@@ -1,9 +1,8 @@
-<!-- course.html -->
 {% extends 'base.html' %}
 
 {% block content %}
     <div class="container mt-5">
-        <h1>Courses</h1>
+        <h1 class="mb-4">Courses</h1>
         <div class="row">
             <div class="col-md-6">
                 {% if user.is_authenticated and user.student.isteacher %}
@@ -21,23 +20,27 @@
                                 <p class="card-text">{{ course.description }}</p>
                                 <p class="card-text">Instructor: {{ course.instructor.username }}</p>
                                 <a href="{{ course.files.url }}" class="btn btn-primary">Download Course Outline</a>
-                                {% if user.is_authenticated and not user.student.isteacher %}
-                                    {% if user.student.is_course_in_cart %}
-                                        <form method="post" action="{% url 'eAcademyApp:remove_from_cart' course.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-danger">Remove from Cart</button>
-                                        </form>
-                                    {% else %}
-                                        <form method="post" action="{% url 'eAcademyApp:add_to_cart' course.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-success">Add to Cart</button>
-                                        </form>
-                                    {% endif %}
+                                {% if user.is_authenticated and not user.student.isteacher and not user.is_superuser %}
+                                    <div class="d-flex mt-3">
+                                        {% if course.is_in_cart %}
+                                            <form method="post" action="{% url 'eAcademyApp:remove_from_cart' course.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-danger">Remove from Cart</button>
+                                            </form>
+                                        {% else %}
+                                            <form method="post" action="{% url 'eAcademyApp:add_to_cart' course.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success">Add to Cart</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
                                 {% endif %}
                             </div>
                         </div>
                     {% empty %}
-                        <p>No courses available.</p>
+                        <div class="alert alert-info mt-3" role="alert">
+                            No courses available.
+                        </div>
                     {% endfor %}
                 </div>
             </div>

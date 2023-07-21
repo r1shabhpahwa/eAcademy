@@ -120,7 +120,22 @@ def logout_view(request):
 
 def course_list(request):
     courses = Course.objects.all()
-    return render(request, 'course.html', {'courses': courses})
+
+    # Check if the user is authenticated and retrieve the student instance if available
+    user = request.user
+    student = None
+    if user.is_authenticated and not user.is_superuser:
+        if not user.student.isteacher():
+            student = user.student
+
+            for course in courses:
+                # Add a dynamic attribute 'is_in_cart' to each course
+                course.is_in_cart = CartItem.objects.filter(student=student, course=course).exists() if student else False
+
+            return render(request, 'course.html', {'courses': courses, 'user': user})
+
+    else:
+        return render(request, 'course.html', {'courses': courses, 'user': user})
 
 
 def contact(request):
@@ -313,21 +328,41 @@ def add_to_cart(request, course_id):
     else:
         messages.warning(request, 'Only students are eligible to buy courses')
 
-    # Redirect to the homepage
+    # Redirect to the Course page
     return redirect('eAcademyApp:course_list')
 
+
+from django.urls import reverse
 
 @login_required
 def remove_from_cart(request, course_id):
+    if request.user.is_authenticated and not request.user.student.isteacher():
+        course = get_object_or_404(Course, pk=course_id)
+        student = request.user.student
 
-    # Remove from cart logic
-    # TODO
+        # Check if the course is in the cart before removing it
+        if CartItem.objects.filter(student=student, course=course).exists():
+            cart_item = CartItem.objects.filter(student=student, course=course)
+            cart_item.delete()
 
-    # Feedback message
-    messages.info(request, 'Course removed from cart!')
+            # Feedback message
+            messages.info(request, 'Course removed from cart!')
+        else:
+            # If the course is not in the cart, show a message indicating that it cannot be removed.
+            messages.info(request, 'Course is not in the cart.')
 
-    # Redirect to the homepage
-    return redirect('eAcademyApp:course_list')
+    else:
+        messages.warning(request, 'Only students are eligible to buy courses')
+
+    # Get the 'next' parameter from the request (the page where the request was made)
+    next_page = request.GET.get('next')
+
+    if next_page:
+        # If 'next' parameter exists, redirect to that page
+        return redirect(next_page)
+    else:
+        # If 'next' parameter doesn't exist, redirect to the course list page by default
+        return redirect('eAcademyApp:course_list')
 
 
 @login_required

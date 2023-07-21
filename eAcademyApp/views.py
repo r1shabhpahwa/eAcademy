@@ -8,9 +8,9 @@ from django.conf import settings
 from django.urls import reverse
 import stripe
 import os
-from .models import InstructorRequest
+# from .models import InstructorRequest
 from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm
-from .models import Membership, Course, Student, User, CartItem
+from .models import Membership, Course, Student, User, CartItem, InstructorRequest
 
 # Stripe API Key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -20,6 +20,33 @@ def homepage(request):
     return render(request, 'homepage.html')
 
 
+# def login_view(request):
+#     if request.method == 'POST':
+#         # Handle login form submission
+#         # Use the submitted data to authenticate the user
+#         username = request.POST['username']
+#         password = request.POST['password']
+#         user = authenticate(request, username=username, password=password)
+#         if user is not None:
+#             # User is authenticated, log in the user
+#             login(request, user)
+#             # Check if 'next' parameter exists in the URL
+#             next_url = request.GET.get('next')
+#             if next_url:
+#                 # Redirect to the 'next' URL if it exists
+#                 return redirect(next_url)
+#             else:
+#                 # Redirect to the default homepage if 'next' URL doesn't exist
+#                 return redirect('eAcademyApp:homepage')
+#         else:
+#             # Authentication failed, show an error message
+#             messages.warning(request, 'Invalid username or password, please try again.')
+#             return redirect('eAcademyApp:login')
+#     else:
+#         # Display the login form
+#         return render(request, 'login.html')
+
+# Updated login_view to check instructor approval status
 def login_view(request):
     if request.method == 'POST':
         # Handle login form submission
@@ -27,9 +54,21 @@ def login_view(request):
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
+
         if user is not None:
+            # Check if the user is approved as an instructor
+            try:
+                instructor_request = InstructorRequest.objects.get(user=user)
+                if not instructor_request.is_approved:
+                    # If the instructor request is not approved, prevent login and show message
+                    messages.warning(request, 'Not yet approved by the Admin. Please wait for approval!')
+                    return redirect('eAcademyApp:login')
+            except InstructorRequest.DoesNotExist:
+                pass  # The user is not an instructor
+
             # User is authenticated, log in the user
             login(request, user)
+
             # Check if 'next' parameter exists in the URL
             next_url = request.GET.get('next')
             if next_url:
@@ -46,7 +85,6 @@ def login_view(request):
         # Display the login form
         return render(request, 'login.html')
 
-
 def register_view(request):
     if request.user.is_authenticated:
         messages.info(request, 'You are already logged in.')
@@ -60,6 +98,7 @@ def register_view(request):
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             password = form.cleaned_data['password1']
+            membership_type = form.cleaned_data['membership_type']
             register_as = form.cleaned_data['register_as']
 
             user = User.objects.create_user(
@@ -67,34 +106,37 @@ def register_view(request):
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                password=password
+                password=password,
             )
+            # student = Student.objects.create(user=user, user_type='student')
+            student = Student.objects.create(user=user, user_type=register_as)
 
-            if register_as == 'student':
-                Student.objects.create(user=user, user_type='student')
-            elif register_as == 'instructor':
-                Student.objects.create(user=user, user_type='instructor')
+            if register_as == 'professor':
+                InstructorRequest.objects.create(user=user)
+                messages.info(request, 'Your instructor request has been sent to the admin for approval.')
+
 
             # Check if the selected membership type is an upgrade
-            membership_type = form.cleaned_data['membership_type']
             if membership_type != 'bronze':
                 messages.info(request, 'This is a paid option. Silver costs $10 per month, and Gold is $20 per month.')
                 # Redirect to the payment page
                 return redirect(reverse('eAcademyApp:payment'))
 
-            # Create the membership record for the user
             Membership.objects.create(user=user, membership_type=membership_type)
 
             # Feedback message
-            messages.info(request, 'You have been successfully registered, please login now!')
+            messages.info(request,
+                          'You have been successfully registered, please login now!')
 
             # Redirect to the login page
             return redirect(reverse('eAcademyApp:login'))
+
+        else:
+            # Print form errors for debugging
+            print(form.errors)
     else:
         form = ExtendedUserCreationForm()
-
     return render(request, 'register.html', {'form': form})
-
 
 def logout_view(request):
     logout(request)
@@ -301,6 +343,20 @@ def cart(request):
         cart_items = []
     return render(request, 'cart.html', {'cart_items': cart_items})
 
+# @login_required
+# @user_passes_test(lambda user: user.is_superuser)
+# def instructor_requests_view(request):
+#     instructor_requests = InstructorRequest.objects.all()
+#     return render(request, 'instructor_requests.html', {'instructor_requests': instructor_requests})
+#
+#
+# def accept_instructor_request_view(request, user_id):
+#     return redirect('eAcademyApp:instructor_requests')
+#
+# def reject_instructor_request_view(request, user_id):
+#     return redirect('eAcademyApp:instructor_requests')
+
+# Updated instructor_requests_view to handle approval and rejection
 @login_required
 @user_passes_test(lambda user: user.is_superuser)
 def instructor_requests_view(request):
@@ -308,8 +364,30 @@ def instructor_requests_view(request):
     return render(request, 'instructor_requests.html', {'instructor_requests': instructor_requests})
 
 
+@login_required
+@user_passes_test(lambda user: user.is_superuser)
 def accept_instructor_request_view(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    try:
+        instructor_request = InstructorRequest.objects.get(user=user)
+        instructor_request.is_approved = True
+        instructor_request.save()
+        messages.success(request, f'Instructor request for {user.username} has been approved.')
+    except InstructorRequest.DoesNotExist:
+        messages.error(request, 'Instructor request not found.')
+
     return redirect('eAcademyApp:instructor_requests')
 
+
+@login_required
+@user_passes_test(lambda user: user.is_superuser)
 def reject_instructor_request_view(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    try:
+        instructor_request = InstructorRequest.objects.get(user=user)
+        instructor_request.delete()
+        messages.success(request, f'Instructor request for {user.username} has been rejected.')
+    except InstructorRequest.DoesNotExist:
+        messages.error(request, 'Instructor request not found.')
+
     return redirect('eAcademyApp:instructor_requests')

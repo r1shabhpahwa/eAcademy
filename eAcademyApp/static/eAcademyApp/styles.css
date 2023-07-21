@@ -22,11 +22,16 @@ body {
     background-size: cover;
 }
 
+
+
+
 .student-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-top: 50px;
     border: 1px solid black;
+
+
 }
 
 .student-table th,
@@ -41,15 +46,10 @@ body {
     text-align: center;
 }
 
-
-.student-table th {
-    text-align: center;
-}
-
-
 .container {
     max-width: 800px;
     margin: 0 auto;
+
 
 }
 
@@ -62,10 +62,8 @@ h1 {
     background-color: #f2f2f2;
 }
 
-
-
 .button-space {
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 /* Custom styles for the "About Us" page */
@@ -115,6 +113,42 @@ ul li {
     padding: 20px;
   }
 }
+
+
+/* Custom styles for the "My Account" page */
+
+.container2{
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px;
+}
+
+
+/* Style the "My Account" table */
+.my-account-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border: 1px solid black;
+
+}
+
+.my-account-table th,
+.my-account-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid black;
+}
+
+.my-account-table th,td {
+  background-color: #f2f2f2;
+    text-align: center;
+}
+
+
+
+
+
 
 
 

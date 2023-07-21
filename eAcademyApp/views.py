@@ -144,9 +144,6 @@ def contact(request):
         email = request.POST['email']
         message = request.POST['message']
 
-        # Handle message data
-        # TODO
-
         # Feedback message
         messages.info(request, 'Thank you for contacting us! Your message has been received and we will get back to you shortly')
 

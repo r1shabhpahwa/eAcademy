@@ -11,9 +11,9 @@ eAcademy is a feature-rich online learning platform developed using Django, Pyth
 
 --> Student Progress Tracking: Instructors can monitor student progress, track course completion, and view performance statistics.
 
---> User Authorizations and Authentication: The platform ensures secure user logins and personalized learning experiences with proper authorizations.
-
 --> User-Friendly Interfaces: eAcademy features user-friendly interfaces for easy navigation and intuitive interactions.
+
+--> User Authorizations and Authentication: The platform ensures secure user logins and personalized learning experiences with proper authorizations.
 
 --> eAcademy aims to revolutionize online education, offering a robust platform that caters to the needs of both instructors and students. 
     It fosters interactive  learning, flexibility, and convenience, making it an ideal choice for online education providers.

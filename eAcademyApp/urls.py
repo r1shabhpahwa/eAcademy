@@ -31,32 +31,31 @@ urlpatterns = [
     # path('forgot-password/', views.forgot_password, name='forgot_password'),
 
     # URL pattern for the forgot password feature
-    path('accounts/forgot-password/', views.forgot_password, name='forgot_password'),
+    path('accounts/forgot-password/', views.forgot_password_view, name='forgot_password'),
 
     # URL patterns for the built-in Django password reset views
     path('accounts/reset-password/', auth_views.PasswordResetView.as_view(
-        template_name='reset_password.html',
+        template_name='ResetPassword.html',
         email_template_name='reset_password_email.html',
         success_url='/accounts/reset-password/done/'
     ), name='password_reset'),
 
-    path('accounts/reset-password/done/', auth_views.PasswordResetDoneView.as_view(
-        template_name='reset_password_done.html'
-    ), name='password_reset_done'),
+    # path('accounts/reset-password/done/', auth_views.PasswordResetDoneView.as_view(
+    #     template_name='reset_password_done.html'
+    # ), name='password_reset_done'),
+    #
+    # # URL pattern for password reset confirmation view
+    # path('accounts/reset-password/confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+    #     template_name='reset_password_confirm.html',
+    #     success_url='/accounts/reset-password/complete/'
+    # ), name='password_reset_confirm'),
+    #
+    # path('accounts/reset-password/complete/', auth_views.PasswordResetCompleteView.as_view(
+    #     template_name='reset_password_complete.html'
+    # ), name='password_reset_complete'),
 
-    # URL pattern for password reset confirmation view
-    path('accounts/reset-password/confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
-        template_name='reset_password_confirm.html',
-        success_url='/accounts/reset-password/complete/'
-    ), name='password_reset_confirm'),
 
-    path('accounts/reset-password/complete/', auth_views.PasswordResetCompleteView.as_view(
-        template_name='reset_password_complete.html'
-    ), name='password_reset_complete'),
+    path('confirm-code/', views.confirm_code_view, name='confirm_code'),
+    path('reset-password/', views.reset_password_view, name='reset_password'),
 
-
-    path('confirm-code/', views.confirm_code, name='confirm_code'),
-    path('reset-password/', views.reset_password, name='reset_password'),
-
-# path('send-test-email/', views.send_test_email, name='send_test_email'),
 ]

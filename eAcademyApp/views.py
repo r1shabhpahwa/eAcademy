@@ -171,6 +171,7 @@ def contact(request):
         return redirect(reverse('eAcademyApp:homepage'))
 
     return render(request, 'contact.html')
+  
 
 @login_required
 def create_course(request):

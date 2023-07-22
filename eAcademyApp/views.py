@@ -299,13 +299,22 @@ def dashboard(request):
         # Get the enrollments of the student (courses enrolled by the student)
         enrollments = Enrollment.objects.filter(student=student_user)
 
-        return render(request, 'dashboard.html', {'student_user': student_user, 'enrollments': enrollments})
+        # Create a dictionary to store attendance and grade for each course
+        attendance_dict = {}
+        grade_dict = {}
+
+        for enrollment in enrollments:
+            attendance_dict[enrollment.course.id] = enrollment.student.attendance
+            grade_dict[enrollment.course.id] = enrollment.student.grade
+
+        return render(request, 'dashboard.html', {'student_user': student_user, 'enrollments': enrollments, 'attendance_dict': attendance_dict, 'grade_dict': grade_dict})
     else:
         # Feedback message
         messages.info(request, 'Only Students are eligible to access this page.')
 
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
+
 
 
 

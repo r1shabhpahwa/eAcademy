@@ -21,8 +21,8 @@
                             {% for enrollment in enrollments %}
                                 <li class="list-group-item">
                                     <strong>Course:</strong> {{ enrollment.course.title }}<br>
-                                    <strong>Grade:</strong> {{ enrollment.grade }}<br>
-                                    <strong>Attendance:</strong> {{ enrollment.attendance }}<br>
+                                    <strong>Grade:</strong> {{ enrollment.student.grade }}<br>
+                                    <strong>Attendance:</strong> {{ enrollment.student.attendance }}<br>
                                 </li>
                             {% endfor %}
                         </ul>

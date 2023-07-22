@@ -35,7 +35,7 @@
                  <!-- My Grades link for student users -->
                 {% if request.user.userprofile.isstudent %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'eAcademyApp:my_grades' %}">My Grades</a>
+                        <a class="nav-link" href="{% url 'eAcademyApp:dashboard' %}">Dashboard</a>
                     </li>
                 {% endif %}
 

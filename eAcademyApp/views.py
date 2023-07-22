@@ -290,18 +290,24 @@ def upgrade_view(request, membership_type):
 
 
 @login_required
-def my_grades(request):
-    if request.user.userprofile.isstudent():
+def dashboard(request):
+    # Check if the user is a student
+    if request.user.userprofile.user_type == 'student':
         # Retrieve the currently logged-in student user
         student_user = request.user.userprofile
 
-        return render(request, 'my_grades.html', {'student_user': student_user})
+        # Get the enrollments of the student (courses enrolled by the student)
+        enrollments = Enrollment.objects.filter(student=student_user)
+
+        return render(request, 'dashboard.html', {'student_user': student_user, 'enrollments': enrollments})
     else:
         # Feedback message
         messages.info(request, 'Only Students are eligible to access this page.')
 
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
+
+
 
 
 @login_required

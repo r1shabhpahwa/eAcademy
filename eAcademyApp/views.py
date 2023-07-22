@@ -501,35 +501,46 @@ def create_course(request):
         return redirect(reverse('eAcademyApp:course_list'))
 
 
+
 @login_required
-def student_list(request):
-    # Check if user is an instructor
-    if request.user.userprofile.isteacher():
+def student_management(request):
+    if not request.user.userprofile.isteacher():
+        messages.info(request, 'Only instructors are allowed to access this page.')
+        return redirect('eAcademyApp:homepage')
 
-        students = UserProfile.objects.filter(user__userprofile__user_type='student')
+    selected_course = None
+    students = []
 
-        if request.method == 'POST':
-            form = StudentUpdateForm(request.POST, students=students)
-            if form.is_valid():
-                for student in students:
-                    student.attendance = form.cleaned_data[f'attendance_{student.id}']
-                    student.grade = form.cleaned_data[f'grade_{student.id}']
-                    student.save()
+    if request.method == 'GET':
+        course_id = request.GET.get('course')
+        if course_id:
+            selected_course = get_object_or_404(Course, id=course_id)
+            students = Enrollment.objects.filter(course=selected_course)
 
-                # Add a success message to be shown after successful form submission
-                messages.success(request, 'Your changes has been successfully saved!')
+    elif request.method == 'POST':
+        for key, value in request.POST.items():
+            if key.startswith('attendance_'):
+                student_id = key.split('_')[1]
+                student = get_object_or_404(UserProfile, id=student_id)
+                student.attendance = int(value)
+                student.save()
+            elif key.startswith('grade_'):
+                student_id = key.split('_')[1]
+                student = get_object_or_404(UserProfile, id=student_id)
+                student.grade = float(value)
+                student.save()
 
-                # Redirect to the same page after form submission
-                return redirect('eAcademyApp:student_list')
+        messages.success(request, 'Your changes have been saved.')
 
-        else:
-            form = StudentUpdateForm(students=students)
+    courses = Course.objects.filter(instructor=request.user)
+    context = {
+        'courses': courses,
+        'selected_course': selected_course,
+        'students': students,
+    }
+    return render(request, 'student_management.html', context)
 
-        return render(request, 'student_list.html', {'students': students, 'form': form})
 
-    else:
-        messages.info(request,'Only instructors are allowed to access this page.')
-        return redirect(reverse('eAcademyApp:homepage'))
 
 
 # ========================================================

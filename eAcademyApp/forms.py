@@ -41,8 +41,11 @@ class CourseForm(forms.ModelForm):
         }
 
 
-class StudentUpdateForm(forms.Form):
+# forms.py
 
+# ... (previous imports)
+
+class StudentUpdateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         students = kwargs.pop('students')
         super(StudentUpdateForm, self).__init__(*args, **kwargs)
@@ -52,6 +55,8 @@ class StudentUpdateForm(forms.Form):
                 label=f'Attendance for {student.first_name} {student.last_name}',
                 initial=student.attendance,
                 min_value=0,
+                max_value=100,
+                widget=forms.NumberInput(attrs={'class': 'form-control'}),
             )
 
             self.fields[f'grade_{student.id}'] = forms.DecimalField(
@@ -60,4 +65,5 @@ class StudentUpdateForm(forms.Form):
                 min_value=0,
                 max_value=100,
                 decimal_places=2,
+                widget=forms.NumberInput(attrs={'class': 'form-control'}),
             )

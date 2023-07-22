@@ -130,7 +130,7 @@ def course_list(request):
     # Check if the user is authenticated and retrieve the student instance if available
     user = request.user
 
-    if user.is_authenticated:
+    if user.is_authenticated and not user.is_superuser:
         if user.userprofile.isstudent():
             student = user.userprofile
 

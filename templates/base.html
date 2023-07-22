@@ -42,7 +42,7 @@
                 <!-- Show/Hide student management section -->
                 {% if request.user.is_authenticated and request.user.userprofile.isteacher %}
                     <li class="nav-item {% if request.path == '/student-management/' %}active{% endif %}">
-                        <a class="nav-link" href="/student/">Student Management</a>
+                        <a class="nav-link" href="{% url 'eAcademyApp:student_management' %}">Student Management</a>
                     </li>
                 {% endif %}
 

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0 text-center">Dashboard</h2>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Username:</strong> {{ student_user.user.username }}</li>
+                        <li class="list-group-item"><strong>Email:</strong> {{ student_user.email }}</li>
+                    </ul>
+
+                    <h5 class="mt-4">Courses Enrolled:</h5>
+                    {% if enrollments %}
+                        <ul class="list-group">
+                            {% for enrollment in enrollments %}
+                                <li class="list-group-item">
+                                    <strong>Course:</strong> {{ enrollment.course.title }}<br>
+                                    <strong>Grade:</strong> {{ enrollment.grade }}<br>
+                                    <strong>Attendance:</strong> {{ enrollment.attendance }}<br>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No courses enrolled yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

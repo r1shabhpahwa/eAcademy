@@ -173,37 +173,26 @@ def contact(request):
     return render(request, 'contact.html')
   
 
-def contact(request):
-    if request.method == 'POST':
-        name = request.POST['name']
-        email = request.POST['email']
-        message = request.POST['message']
+@login_required
+def create_course(request):
+    if request.user.student.isteacher():
+        if request.method == 'POST':
+            form = CourseForm(request.POST, request.FILES)
+            if form.is_valid():
+                form.save()
+                # Feedback message
+                messages.info(request, 'New course has been created!')
 
-        # Prepare the data to send to Formspree
-        data = {
-            'name': name,
-            'email': email,
-            'message': message,
-        }
-
-        # Replace 'YOUR_FORMSPREE_ENDPOINT' with your actual Formspree endpoint
-        formspree_endpoint = 'https://formspree.io/f/mwkdpqgn'
-
-        # Make the HTTP POST request to Formspree
-        response = requests.post(formspree_endpoint, data=data)
-
-        # Check if the API call was successful (status code 200 means success)
-        if response.status_code == 200:
-            # Feedback message
-            messages.info(request, 'Thank you for contacting us! Your message has been received and we will get back to you shortly')
+                return redirect('eAcademyApp:course_list')
         else:
-            # Handle the case when the API call failed
-            messages.error(request, 'Oops! Something went wrong while submitting your message. Please try again later.')
+            form = CourseForm()
+        return render(request, 'create_course.html', {'form': form})
+    else:
+        # Feedback message
+        messages.info(request, 'Only instructors are allowed to access this page.')
 
         # Redirect to the homepage
-        return redirect(reverse('eAcademyApp:homepage'))
-
-    return render(request, 'contact.html')
+        return redirect(reverse('eAcademyApp:course_list'))
 
 
 @login_required

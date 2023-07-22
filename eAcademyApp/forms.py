@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Membership, Course, Student
+from .models import Membership, Course, UserProfile
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -22,17 +22,22 @@ class CourseForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter the instructor field queryset to only include professors
-        self.fields['instructor'].queryset = User.objects.filter(student__user_type='professor')\
-            .select_related('student')
+        self.fields['instructor'].queryset = User.objects.filter(userprofile__user_type='professor')\
+            .select_related('userprofile')
 
     class Meta:
         model = Course
-        fields = ('title', 'description', 'instructor', 'files')
+        fields = ('title', 'level_type', 'description', 'instructor', 'files', )
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'level_type': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'instructor': forms.Select(attrs={'class': 'form-control'}),
             'files': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
+        labels = {
+            'level_type': 'Course Level',
+            'files': 'Course Outline Document'
         }
 
 

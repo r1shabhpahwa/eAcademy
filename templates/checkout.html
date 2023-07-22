@@ -1,0 +1,59 @@
+<!-- checkout.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Course Enrollment Summary</h2>
+            </div>
+            <div class="card-body">
+                <p class="card-text">Hello, {{ user_profile.user.username }}!</p>
+                <p class="card-text">You are currently a <strong>{{ user_membership.membership_type }}</strong> member, eligible to register <strong>{{ max_registrations }}</strong> courses of level: <strong>{{ access_levels|join:", " }}</strong></p>
+                <p class="card-text">You have {{ previous_registrations }} courses already registered.</p>
+                <p class="card-text">You have {{ total_registrations }} course registration(s) in your cart.</p>
+
+                {% if cart_valid == 0 %}
+                    <p class="card-text">You are eligible to register for the following courses:</p>
+                    <ul class="list-group">
+                        {% for course in cart_courses %}
+                                <li class="list-group-item">{{ course.course.title }} ({{ course.course.level_type }})</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="text-center mt-3">
+                        <form method="post" action="{% url 'eAcademyApp:checkout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success">Enroll in Courses</button>
+                        </form>
+                    </div>
+                {% else %}
+                    {% if cart_valid == 1 %}
+                        <p class="card-text">Please remove some courses from your cart or upgrade your membership tier.</p>
+                    {% elif cart_valid == 2 %}
+                        <p class="card-text">Please remove the course(s) with a higher level or consider upgrading your membership tier.</p>
+                        <ul class="list-group">
+                        {% for course in cart_courses %}
+                                {% if course.course.level_type not in access_levels %}
+                                    <li class="list-group-item">{{ course.course.title }} ({{ course.course.level_type.capitalize }})</li>
+                                {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% elif cart_valid == 3 %}
+                        <p class="card-text">Please remove some courses from your cart or upgrade your membership tier.</p>
+                        <p class="card-text">Please remove the course(s) with a higher level or consider upgrading your membership tier.</p>
+                        <ul class="list-group">
+                        {% for course in cart_courses %}
+                                {% if course.course.level_type not in access_levels %}
+                                    <li class="list-group-item">{{ course.course.title }} ({{ course.course.level_type.capitalize }})</li>
+                                {% endif %}
+                        {% endfor %}
+                        </ul>
+                    {% endif %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'eAcademyApp:cart' %}" class="btn btn-secondary">Go back to cart</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

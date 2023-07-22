@@ -2,46 +2,58 @@
 
 {% block content %}
     <div class="container mt-5">
-        <h1 class="mb-4">Courses</h1>
-        <div class="row">
-            <div class="col-md-6">
-                {% if user.is_authenticated and user.student.isteacher %}
-                    <a href="/courses/create/" class="btn btn-success mt-3 mb-3">Create New Course</a>
-                {% endif %}
+        <div class="card">
+            <div class="card-header">
+                <h2 class="mb-0">Explore our Extensive Course Catalog!</h2>
             </div>
-        </div>
-        <div class="row">
-            <div class="col-md-12">
-                <div class="course-list">
-                    {% for course in courses %}
-                        <div class="card mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">{{ course.title }}</h5>
-                                <p class="card-text">{{ course.description }}</p>
-                                <p class="card-text">Instructor: {{ course.instructor.username }}</p>
-                                <a href="{{ course.files.url }}" class="btn btn-primary">Download Course Outline</a>
-                                {% if user.is_authenticated and not user.student.isteacher and not user.is_superuser %}
-                                    <div class="d-flex mt-3">
-                                        {% if course.is_in_cart %}
-                                            <form method="post" action="{% url 'eAcademyApp:remove_from_cart' course.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-danger">Remove from Cart</button>
-                                            </form>
-                                        {% else %}
-                                            <form method="post" action="{% url 'eAcademyApp:add_to_cart' course.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-success">Add to Cart</button>
-                                            </form>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        {% if user.is_authenticated and user.userprofile.isteacher %}
+                            <a href="/courses/create/" class="btn btn-success mt-3 mb-3">Create New Course</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="course-list">
+                            {% for course in courses %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        {% if course.is_registered %}
+                                            <div class="alert alert-info" role="alert">
+                                                You are already registered in this course!
+                                            </div>
+                                        {% endif %}
+                                        <h5 class="card-title"><strong>{{ course.title }}</strong></h5>
+                                        <p class="card-text">{{ course.description }}</p>
+                                        <p class="card-text"><strong>Course Level:</strong> {{ course.level_type.capitalize }}</p>
+                                        <p class="card-text"><strong>Instructor:</strong> {{ course.instructor.username }}</p>
+                                        <a href="{{ course.files.url }}" class="btn btn-primary">Download Course Outline</a>
+                                        {% if user.is_authenticated and user.userprofile.isstudent %}
+                                            <div class="d-flex mt-3">
+                                                {% if course.is_in_cart %}
+                                                    <form method="post" action="{% url 'eAcademyApp:remove_from_cart' course.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-danger">Remove from Cart</button>
+                                                    </form>
+                                                {% elif not course.is_registered %}
+                                                    <form method="post" action="{% url 'eAcademyApp:add_to_cart' course.id %}">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-success">Add to Cart</button>
+                                                    </form>
+                                                {% endif %}
+                                            </div>
                                         {% endif %}
                                     </div>
-                                {% endif %}
-                            </div>
+                                </div>
+                            {% empty %}
+                                <div class="alert alert-info mt-3" role="alert">
+                                    No courses available.
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% empty %}
-                        <div class="alert alert-info mt-3" role="alert">
-                            No courses available.
-                        </div>
-                    {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>

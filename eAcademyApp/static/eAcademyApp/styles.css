@@ -97,6 +97,12 @@ h1 {
     text-align: center;
 }
 
+/* Add spacing to the upgrade button in membership page */
+.btn-upgrade {
+    margin: 20px 20px;
+}
+
+
 
 
 

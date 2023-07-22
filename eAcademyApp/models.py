@@ -4,8 +4,14 @@ from django.conf import settings
 
 
 class Course(models.Model):
+    LEVEL_CHOICES = [
+        ('beginner', 'Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
     title = models.CharField(max_length=200)
     description = models.TextField()
+    level_type = models.CharField(max_length=12, choices=LEVEL_CHOICES, default='beginner')
     instructor = models.ForeignKey(User, on_delete=models.CASCADE)
     files = models.FileField(upload_to='course_files/')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -43,7 +49,7 @@ class Payment(models.Model):
         return f"{self.user.username} - {self.amount} {self.currency}"
 
 
-class Student(models.Model):
+class UserProfile(models.Model):
     USER_TYPE_CHOICES = [
         ('student', 'Student'),
         ('professor', 'Professor'),
@@ -62,12 +68,12 @@ class Student(models.Model):
     def isteacher(self):
         return self.user_type == 'professor'
 
-    def is_course_in_cart(self, course_id):
-        return self.cartitem_set.filter(course_id=course_id).exists()
+    def isstudent(self):
+        return self.user_type == 'student'
 
 
 class CartItem(models.Model):
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -80,4 +86,13 @@ class InstructorRequest(models.Model):
 
     def __str__(self):
         return f"Instructor Request - {self.user.username}"
+
+
+class Enrollment(models.Model):
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    enrollment_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.user.username} - {self.course.title}"
 

@@ -1,32 +1,89 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <div class="container">
-    <h1>Membership</h1>
-    {% if user_membership %}
-      <p>Your current membership tier: {{ user_membership.membership_type }}</p>
-    {% else %}
-      <p>You are not currently subscribed to any membership tier.</p>
-    {% endif %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      {% if user_membership %}
+        <div class="card mb-4 mt-4">
+            <div class="card-header">
+                <h3 class="mb-0">Your current membership tier is : <strong> {{ user_membership.membership_type|title }}</strong></h3>
+            </div>
+          <div class="card-body">
+            {% if user_membership.membership_type == 'bronze' %}
+              <ul class="list-group">
+                <li class="list-group-item">Maximum number of course registrations: 2 courses</li>
+                <li class="list-group-item">Access to Beginner level courses only</li>
+                <li class="list-group-item">Access to basic course material</li>
+              </ul>
+            {% elif user_membership.membership_type == 'silver' %}
+              <ul class="list-group">
+                <li class="list-group-item">Maximum number of course registrations: 5 courses</li>
+                <li class="list-group-item">Access to Beginner and Intermediate level courses</li>
+                <li class="list-group-item">Access to additional course materials: E-books, supplementary resources</li>
+                <li class="list-group-item">Limited access to live webinars or interactive sessions</li>
+                <li class="list-group-item">Certificate of completion for completed courses</li>
+              </ul>
+            {% elif user_membership.membership_type == 'gold' %}
+              <ul class="list-group">
+                <li class="list-group-item">Maximum number of course registrations: Unlimited</li>
+                <li class="list-group-item">Access to all course levels: Beginner, Intermediate, and Advanced</li>
+                <li class="list-group-item">Full access to all course materials, including advanced resources and projects</li>
+                <li class="list-group-item">Access to live webinars and interactive sessions</li>
+                <li class="list-group-item">Priority support and faster response times</li>
+                <li class="list-group-item">Certificate of completion with distinction for completed courses</li>
+              </ul>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <div class="alert alert-info" role="alert">
+          You are not currently subscribed to any membership tier.
+        </div>
+      {% endif %}
 
-    {% if user_membership and user_membership.membership_type != 'gold' %}
-      <h2>Upgrade Options:</h2>
-      <ul class="list-group">
-        {% if user_membership.membership_type != 'silver' %}
-          <li class="list-group-item">
-            <form action="{% url 'eAcademyApp:upgrade' 'silver' %}" method="post">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-primary">Upgrade to Silver ($10/month)</button>
-            </form>
-          </li>
-        {% endif %}
-        <li class="list-group-item">
-          <form action="{% url 'eAcademyApp:upgrade' 'gold' %}" method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Upgrade to Gold ($20/month)</button>
-          </form>
-        </li>
-      </ul>
-    {% endif %}
+      {% if user_membership and user_membership.membership_type != 'gold' %}
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Membership upgrade options:</h3>
+            </div>
+          <div class="card-body">
+            {% if user_membership.membership_type != 'silver' %}
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h5 class="card-title">Upgrade to <strong>Silver</strong> today for these added benefits!</h5>
+                  <ul class="list-group">
+                    <li class="list-group-item">Maximum number of course registrations per month: 5 courses</li>
+                    <li class="list-group-item">Access to Beginner and Intermediate level courses</li>
+                    <li class="list-group-item">Access to additional course materials: E-books, supplementary resources</li>
+                    <li class="list-group-item">Certificate of completion for completed courses</li>
+                  </ul>
+                  <form action="{% url 'eAcademyApp:upgrade' 'silver' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary mt-4">Upgrade ($10/month)</button>
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Upgrade to <strong>Gold</strong> today for these added benefits!</h5>
+                <ul class="list-group">
+                  <li class="list-group-item">Maximum number of course registrations per month: Unlimited</li>
+                  <li class="list-group-item">Access to all course levels: Beginner, Intermediate, and Advanced</li>
+                  <li class="list-group-item">Full access to all course materials, including advanced resources and projects</li>
+                  <li class="list-group-item">Priority support and faster response times</li>
+                </ul>
+                <form action="{% url 'eAcademyApp:upgrade' 'gold' %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary mt-4">Upgrade ($20/month)</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
   </div>
+</div>
 {% endblock %}

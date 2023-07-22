@@ -26,14 +26,21 @@
                 </li>
 
                 <!-- Show/Hide membership section -->
-                {% if request.user.is_authenticated and not request.user.student.isteacher and not request.user.is_superuser %}
+                {% if request.user.is_authenticated and request.user.userprofile.isstudent %}
                     <li class="nav-item {% if request.path == '/membership/' %}active{% endif %}">
                         <a class="nav-link" href="/membership/">Membership</a>
                     </li>
                 {% endif %}
 
+                 <!-- My Grades link for student users -->
+                {% if request.user.userprofile.isstudent %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'eAcademyApp:my_grades' %}">My Grades</a>
+                    </li>
+                {% endif %}
+
                 <!-- Show/Hide student management section -->
-                {% if request.user.is_authenticated and request.user.student.isteacher %}
+                {% if request.user.is_authenticated and request.user.userprofile.isteacher %}
                     <li class="nav-item {% if request.path == '/student-management/' %}active{% endif %}">
                         <a class="nav-link" href="/student/">Student Management</a>
                     </li>
@@ -45,12 +52,13 @@
                 <li class="nav-item {% if request.path == '/aboutus/' %}active{% endif %}">
                     <a class="nav-link" href="/aboutus/">About Us</a>
                 </li>
+
             </ul>
 
             <!-- Right Section -->
             <ul class="navbar-nav">
                 <!-- Cart Button -->
-                {% if request.user.is_authenticated and not request.user.student.isteacher and not request.user.is_superuser %}
+                {% if request.user.is_authenticated and request.user.userprofile.isstudent %}
                     <li class="nav-item {% if request.path == '/cart/' %}active{% endif %}">
                         <a class="nav-link" href="/cart/">
                             <div class="cart-icon"></div>
@@ -79,17 +87,6 @@
                     </li>
                 {% endif %}
             </ul>
-
-            <!-- My Account link for student users -->
-{#            {% if user.is_authenticated and user.student %}#}
-            {% if request.user.student and not request.user.student.isteacher %}
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'eAcademyApp:my_account' %}">My Account</a>
-                    </li>
-                </ul>
-            {% endif %}
-
 
         </div>
     </nav>

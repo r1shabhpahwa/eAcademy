@@ -2,13 +2,17 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import PasswordResetView
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from django.conf import settings
 from django.urls import reverse
 import stripe
 import os
 import requests
+
 
 # from .models import InstructorRequest
 from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm
@@ -565,3 +569,97 @@ def reject_instructor_request_view(request, user_id):
         messages.error(request, 'Instructor request not found.')
 
     return redirect('eAcademyApp:instructor_requests')
+
+
+# ========================================================
+# Views for Forgot password/Reset password
+# ========================================================
+
+def forgot_password(request):
+    if request.method == 'POST':
+        # Handle the forgot password form submission
+        email = request.POST['email']
+        user = User.objects.filter(email=email).first()
+
+        if user:
+            # Send the confirmation code email to the user
+            confirmation_code = default_token_generator.make_token(user)
+            subject = 'eAcademy Account: Password Reset Confirmation Code'
+            message = f"Hi, registered user {email}, " \
+                      f"here is your confirmation code to reset password: " \
+                      f"{confirmation_code}."
+            from_email = 'ecademycorp@gmail.com'  # Replace with your Gmail email address
+            recipient_list = [email]
+
+            try:
+                send_mail(subject, message, from_email, recipient_list, fail_silently=True)
+                messages.success(request, f'A confirmation code has been sent to {email}.')
+                request.session['reset_email'] = email
+            except:
+                messages.error(request, 'Failed to send the confirmation code. Please try again later.')
+                return render(request, 'forgot_password.html')
+
+        else:
+            messages.error(request, 'This user does not exist. Enter a valid email id to continue.')
+            return render(request, 'forgot_password.html')
+
+        # Redirect to the confirm code page
+        return redirect(reverse('eAcademyApp:confirm_code'))
+
+    return render(request, 'forgot_password.html')
+
+def confirm_code(request):
+    if request.method == 'POST':
+        # Handle the confirmation code form submission
+        confirmation_code = request.POST['confirmation_code']
+        email = request.session.get('reset_email', None)
+
+        if email:
+            user = get_object_or_404(User, email=email)
+
+            # Validate the confirmation code
+            if default_token_generator.check_token(user, confirmation_code):
+                # If the confirmation code is valid, proceed to the password reset page
+                return redirect(reverse('eAcademyApp:reset_password'))
+            else:
+                # If the confirmation code is invalid, show an error message
+                messages.error(request, 'Invalid confirmation code. Please try again.')
+        else:
+            messages.error(request, 'No email address found in the session. Please try again.')
+
+    return render(request, 'confirm_code.html')
+
+
+def reset_password(request):
+    if request.method == 'POST':
+        # Handle the password reset form submission
+        new_password = request.POST['new_password']
+        confirm_password = request.POST['confirm_password']
+        email = request.session.get('reset_email', None)
+
+        if email:
+            user = get_object_or_404(User, email=email)
+
+            if new_password == confirm_password:
+                # If the passwords match, reset the user's password
+                user.set_password(new_password)
+                user.save()
+
+                # Clear the email from the session
+                del request.session['reset_email']
+
+                # Add a success message to be shown on the login page
+                messages.success(request, 'Your password has been reset successfully. Please log in with your new password.')
+                return redirect(reverse('eAcademyApp:login'))
+            else:
+                # If the passwords don't match, show an error message
+                messages.error(request, 'Passwords do not match. Please try again.')
+
+        else:
+            messages.error(request, 'No email address found in the session. Please try again.')
+
+    return render(request, 'reset_password.html')
+
+
+# ========================================================
+# ========================================================

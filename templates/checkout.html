@@ -11,7 +11,7 @@
                 <p class="card-text">Hello, {{ user_profile.user.username }}!</p>
                 <p class="card-text">You are currently a <strong>{{ user_membership.membership_type }}</strong> member, eligible to register <strong>{{ max_registrations }}</strong> courses of level: <strong>{{ access_levels|join:", " }}</strong></p>
                 <p class="card-text">You have {{ previous_registrations }} courses already registered.</p>
-                <p class="card-text">You have {{ total_registrations }} course registration(s) in your cart.</p>
+                <p class="card-text">You have {{ cart_courses.count }} course registration(s) in your cart.</p>
 
                 {% if cart_valid == 0 %}
                     <p class="card-text">You are eligible to register for the following courses:</p>
@@ -21,7 +21,7 @@
                         {% endfor %}
                     </ul>
                     <div class="text-center mt-3">
-                        <form method="post" action="{% url 'eAcademyApp:checkout' %}">
+                        <form method="post" action="{% url 'eAcademyApp:enrollment' %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-success">Enroll in Courses</button>
                         </form>

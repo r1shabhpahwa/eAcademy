@@ -36,6 +36,19 @@ class Course(models.Model):
                 img.save(self.image.path)
 
 
+class WeeklyContent(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    week_number = models.PositiveIntegerField()
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    content_file = models.FileField(upload_to='weekly_content/')
+    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.course.title} - Week {self.week_number}: {self.title}"
+
+
 class Membership(models.Model):
     MEMBERSHIP_CHOICES = [
         ('gold', 'Gold'),

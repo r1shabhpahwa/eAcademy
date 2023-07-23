@@ -41,6 +41,9 @@
 
                 <!-- Show/Hide student management section -->
                 {% if request.user.is_authenticated and request.user.userprofile.isteacher %}
+                    <li class="nav-item {% if request.path == '/upload-content/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'eAcademyApp:upload_content' %}">Course Builder</a>
+                    </li>
                     <li class="nav-item {% if request.path == '/student-management/' %}active{% endif %}">
                         <a class="nav-link" href="{% url 'eAcademyApp:student_management' %}">Student Management</a>
                     </li>

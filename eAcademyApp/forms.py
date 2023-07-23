@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Membership, Course, UserProfile
+from .models import Membership, Course, UserProfile, WeeklyContent
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -40,6 +40,19 @@ class CourseForm(forms.ModelForm):
             'files': 'Course Outline Document'
         }
 
+
+class WeeklyContentForm(forms.ModelForm):
+    class Meta:
+        model = WeeklyContent
+        fields = ['course', 'week_number', 'title', 'description', 'content_file']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        # Filter the courses based on the user's instructor status
+        if user and user.userprofile.isteacher():
+            self.fields['course'].queryset = Course.objects.filter(instructor=user)
 
 
 class StudentUpdateForm(forms.Form):

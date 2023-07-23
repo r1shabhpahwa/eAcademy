@@ -17,7 +17,6 @@ class ExtendedUserCreationForm(UserCreationForm):
 
 
 class CourseForm(forms.ModelForm):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Filter the instructor field queryset to only include professors
@@ -26,23 +25,22 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
-        fields = ('title', 'level_type', 'description', 'instructor', 'files', )
+        fields = ('title', 'level_type', 'description', 'instructor', 'image', 'files', )
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'level_type': forms.Select(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'instructor': forms.Select(attrs={'class': 'form-control'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
             'files': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
         }
         labels = {
             'level_type': 'Course Level',
+            'image': 'Course Image',
             'files': 'Course Outline Document'
         }
 
 
-# forms.py
-
-# ... (previous imports)
 
 class StudentUpdateForm(forms.Form):
     def __init__(self, *args, **kwargs):

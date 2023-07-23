@@ -36,6 +36,7 @@ urlpatterns = [
     path('reject-instructor-request/<int:user_id>/', views.reject_instructor_request_view, name='reject_instructor_request'),
     # URL pattern for the forgot password feature
     path('accounts/forgot-password/', views.forgot_password_view, name='forgot_password'),
+    path('upload-content/', views.upload_content, name='upload_content'),
 
     # URL patterns for the built-in Django password reset views
     path('accounts/reset-password/', auth_views.PasswordResetView.as_view(

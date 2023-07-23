@@ -15,8 +15,8 @@ from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 
 # from .models import InstructorRequest
-from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm
-from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment
+from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm, WeeklyContentForm
+from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment, WeeklyContent
 
 # Stripe API Key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -475,8 +475,6 @@ def dashboard(request):
         return redirect(reverse('eAcademyApp:homepage'))
 
 
-
-
 @login_required
 def cart_view(request):
 
@@ -630,7 +628,7 @@ def my_courses_view(request):
         return redirect('eAcademyApp:homepage')
 
 
-
+@login_required
 def enrollment(request):
 
     if request.method == 'POST':
@@ -688,6 +686,32 @@ def create_course(request):
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:course_list'))
 
+
+@login_required
+def upload_content(request):
+    if request.user.userprofile.isteacher():
+        if request.method == 'POST':
+            form = WeeklyContentForm(request.POST, request.FILES, user=request.user)  # Pass the user to the form
+            if form.is_valid():
+                content = form.save(commit=False)
+                content.uploaded_by = request.user
+                content.save()
+                messages.info(request, 'Your content was saved~')
+                return redirect('eAcademyApp:course_list')
+            else:
+                # Collect all the error messages from the form's errors attribute
+                error_messages = "\n".join([f"{field}: {error}" for field, error in form.errors.items()])
+                messages.info(request, f'Form validation failed: \n{error_messages}')
+        else:
+            form = WeeklyContentForm(user=request.user)  # Pass the user to the form
+
+        return render(request, 'content_upload.html', {'form': form})
+    else:
+        # Feedback message
+        messages.info(request, 'Only instructors are allowed to access this page.')
+
+        # Redirect to the homepage
+        return redirect(reverse('eAcademyApp:course_list'))
 
 
 @login_required

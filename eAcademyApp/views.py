@@ -149,6 +149,7 @@ def course_list(request):
 
 
 
+
 def serve_course_file(request, file_name):
     file_path = os.path.join('course_files', file_name)
 

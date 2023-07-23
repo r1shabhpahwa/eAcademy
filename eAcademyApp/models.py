@@ -16,7 +16,7 @@ class Course(models.Model):
     level_type = models.CharField(max_length=12, choices=LEVEL_CHOICES, default='beginner')
     instructor = models.ForeignKey(User, on_delete=models.CASCADE)
     files = models.FileField(upload_to='course_files/')
-    image = models.ImageField(upload_to='course_images/', blank=True, null=True)
+    image = models.ImageField(upload_to='course_images/', blank=True, null=True, default='default.jpg')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

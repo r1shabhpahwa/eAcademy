@@ -40,6 +40,10 @@ class CourseForm(forms.ModelForm):
         }
 
 
+# forms.py
+
+# ... (previous imports)
+
 class StudentUpdateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         students = kwargs.pop('students')

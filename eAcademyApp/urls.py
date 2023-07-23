@@ -39,7 +39,7 @@ urlpatterns = [
 
     # URL patterns for the built-in Django password reset views
     path('accounts/reset-password/', auth_views.PasswordResetView.as_view(
-        template_name='ResetPassword.html',
+        template_name='reset_password.html',
         email_template_name='reset_password_email.html',
         success_url='/accounts/reset-password/done/'
     ), name='password_reset'),

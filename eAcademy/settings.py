@@ -128,3 +128,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 STRIPE_SECRET_KEY = 'sk_test_51NT9cUB88nwCkyuHxYIhq8cZVwACt1papDDkAEV9WqpLvq7xtzHdSTy5YuYa6SW8FGUAEVyZoKDR2lwUZPZWlwDm00vpicgtaj'
 
 STRIPE_PUBLISHABLE_KEY = 'pk_test_51NT9cUB88nwCkyuHRMaoTQUoENfsXMQcLahU8bZP3tHSQGyv8B78aE6ClLiaLJFkFs7Rh6S1AYfxnLB3mkNctQxb00NoEWBxvW'
+
+# Use your Gmail email address
+EMAIL_HOST_USER = 'ecademycorp@gmail.com'
+
+# Use your Gmail App Password if you have 2FA enabled; otherwise, use your Gmail account password
+EMAIL_HOST_PASSWORD = 'icjczyknpvkfnqpv'  # or 'your_gmail_account_password' if 2FA is not enabled
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

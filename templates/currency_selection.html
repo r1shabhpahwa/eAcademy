@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="mb-0 text-center">Currency Selection</h2>
+      </div>
+      <div class="card-body">
+        <form id="currencyForm" method="post">
+          {% csrf_token %}
+          <input type="hidden" name="membership_type" value="{{ membership_type }}">
+          <div class="form-group">
+            <label for="currency">Select Currency:</label>
+            <select class="form-control" name="currency" id="currency">
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+            </select>
+          </div>
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary">Pay</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('currencyForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+      var currency = document.getElementById('currency').value;
+      var membershipType = "{{ membership_type }}";
+      var url = "/membership/upgrade/" + membershipType + "/payment/" + currency + "/";
+      window.location.href = url;
+    });
+  </script>
+{% endblock %}

@@ -1,56 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-10">
-                <h1 class="text-center mb-4">Instructor Requests</h1>
-                {% if instructor_requests %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th class="text-center align-middle">Username</th>
-                                <th class="text-center align-middle">Status</th>
-                                <th class="text-center align-middle">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for request in instructor_requests %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="text-center mb-4">Instructor Requests</h1>
+                </div>
+                <div class="card-body">
+                    {% if instructor_requests %}
+                        <table class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <td class="text-center align-middle">
-                                        {% if request.is_approved %}
-                                            {{ request.user.username }} <span class="text-success">&#10004;</span>
-                                        {% else %}
-                                            {{ request.user.username }}
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center align-middle">
-                                        {% if request.is_approved %}
-                                            <span class="text-success">Approved</span>
-                                        {% else %}
-                                            <span class="text-warning">Pending</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-center align-middle">
-                                        {% if not request.is_approved %}
-                                            <form class="d-inline-block mr-2" method="post" action="{% url 'eAcademyApp:accept_instructor_request' request.user.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-success">Accept</button>
-                                            </form>
-                                            <form class="d-inline-block" method="post" action="{% url 'eAcademyApp:reject_instructor_request' request.user.id %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-danger">Reject</button>
-                                            </form>
-                                        {% endif %}
-                                    </td>
+                                    <th class="text-center align-middle">Username</th>
+                                    <th class="text-center align-middle">Status</th>
+                                    <th class="text-center align-middle">Actions</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p class="text-center">No instructor requests found.</p>
-                {% endif %}
+                            </thead>
+                            <tbody>
+                                {% for request in instructor_requests %}
+                                    <tr>
+                                        <td class="text-center align-middle">
+                                            {% if request.is_approved %}
+                                                {{ request.user.username }} <span class="text-success">&#10004;</span>
+                                            {% else %}
+                                                {{ request.user.username }}
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            {% if request.is_approved %}
+                                                <span class="text-success">Approved</span>
+                                            {% else %}
+                                                <span class="text-warning">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center align-middle">
+                                            {% if not request.is_approved %}
+                                                <form class="d-inline-block mr-2" method="post" action="{% url 'eAcademyApp:accept_instructor_request' request.user.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-success">Accept</button>
+                                                </form>
+                                                <form class="d-inline-block" method="post" action="{% url 'eAcademyApp:reject_instructor_request' request.user.id %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-danger">Reject</button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <p class="text-center">No instructor requests found.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </div>
+</div>
 {% endblock %}

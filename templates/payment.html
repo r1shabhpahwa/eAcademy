@@ -1,25 +1,36 @@
-<!-- payment.html -->
 {% extends 'base.html' %}
 
 {% block content %}
-  <h1>Payment</h1>
-  {% if error %}
-    <p>{{ error }}</p>
-  {% endif %}
+  <div class="container mt-5">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="mb-0 text-center">Payment</h2>
+      </div>
+      <div class="card-body">
+        {% if error %}
+          <div class="alert alert-danger" role="alert">
+            {{ error }}
+          </div>
+        {% endif %}
 
-  <form method="post">
-    {% csrf_token %}
-    <script
-      src="https://checkout.stripe.com/checkout.js"
-      class="stripe-button"
-      data-key="{{ STRIPE_PUBLISHABLE_KEY }}"
-      data-amount="1000"
-      data-name="eAcademyApp"
-      data-description="Membership Upgrade"
-      data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
-      data-locale="auto"
-      data-currency="usd"
-    >
-    </script>
-  </form>
+        <form method="post">
+          {% csrf_token %}
+          <div class="text-center">
+            <script
+              src="https://checkout.stripe.com/checkout.js"
+              class="stripe-button"
+              data-key="{{ STRIPE_PUBLISHABLE_KEY }}"
+              data-amount="1000"
+              data-name="eAcademyApp"
+              data-description="Membership Upgrade"
+              data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+              data-locale="auto"
+              data-currency="usd"
+            >
+            </script>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock %}

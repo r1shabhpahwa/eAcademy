@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="mb-0 text-center">Payment Success</h2>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-success" role="alert">
+          Your payment was successful. Thank you for upgrading your membership!
+        </div>
+        <p class="text-center">
+          <a href="{% url 'eAcademyApp:membership' %}" class="btn btn-primary">Back to Membership Page</a>
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

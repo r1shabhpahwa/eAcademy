@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.urls import reverse
 import stripe
+from decimal import Decimal
 import os
 import requests
 from django.core.mail import send_mail
@@ -14,7 +15,7 @@ from django.contrib.auth.tokens import default_token_generator
 
 # from .models import InstructorRequest
 from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm
-from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment
+from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment
 
 # Stripe API Key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -310,45 +311,82 @@ def membership_view(request):
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
 
-
+def payment_success(request):
+    return render(request, 'payment_success.html')
 @login_required
-def payment_view(request):
+def payment_view(request, membership_type, currency):
     if request.user.userprofile.isstudent():
-        if request.method == 'POST':
+        try:
+            # Validate membership type and currency
+            membership_types = [choice[0] for choice in Membership.MEMBERSHIP_CHOICES]
+            currencies = [choice[0] for choice in Payment.CURRENCY_CHOICES]
+            if membership_type not in membership_types or currency not in currencies:
+                raise Exception("Invalid combination of membership type and currency selected.")
 
-            # Retrieve the payment token from the form submission
-            token = request.POST.get('stripeToken')
+            if request.method == 'POST':
+                # Retrieve the payment token from the form submission
+                token = request.POST.get('stripeToken')
 
-            # Create a charge with Stripe
-            try:
+                # Determine the amount based on the membership_type and currency
+                if membership_type == 'silver':
+                    if currency == 'USD':
+                        amount = 1000  # $10.00 USD (Amount in cents)
+                    elif currency == 'EUR':
+                        amount = 900  # €9.00 EUR (Amount in cents)
+                    elif currency == 'GBP':
+                        amount = 800  # £8.00 GBP (Amount in cents)
+                elif membership_type == 'gold':
+                    if currency == 'USD':
+                        amount = 1500  # $15.00 USD (Amount in cents)
+                    elif currency == 'EUR':
+                        amount = 1350  # €13.50 EUR (Amount in cents)
+                    elif currency == 'GBP':
+                        amount = 1200  # £12.00 GBP (Amount in cents)
+                else:
+                    raise Exception("Invalid combination of membership type and currency selected.")
+
+                # Create the charge using the appropriate amount and currency
                 charge = stripe.Charge.create(
-                    amount=1000,  # Amount in cents
-                    currency='usd',
+                    amount=amount,
+                    currency=currency.lower(),
                     description='Payment',
                     source=token,
                 )
 
                 # If the charge is successful, handle the success scenario
                 if charge.status == 'succeeded':
-                    # Perform any necessary actions, such as updating the user's membership status
-                    # TODO
+                    user = request.user
+                    try:
+                        membership = Membership.objects.get(user=user)
+                        membership.membership_type = membership_type
+                        membership.save()
+                    except Membership.DoesNotExist:
+                        Membership.objects.create(user=user, membership_type=membership_type)
 
-                    # Redirect the user to a success page
+                    # Save the payment information in the database
+                    amount_in_decimal = Decimal(amount) / 100
+                    payment = Payment.objects.create(user=user, amount=amount_in_decimal, currency=currency)
+                    payment.save()
+
                     return redirect('eAcademyApp:payment_success')
+                else:
+                    messages.error(request, 'Payment was not successful. Please try again.')
 
-            except stripe.error.CardError as e:
-                # Handle any card errors
-                error_msg = e.user_message
-                return render(request, 'payment.html', {'error': error_msg})
+            return render(request, 'payment.html', {'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY})
+        except Exception as e:
+            # Handle any other unexpected errors
+            messages.error(request, str(e))
+            return redirect(reverse('eAcademyApp:membership'))
 
-        return render(request, 'payment.html')
     else:
         # Feedback message
         messages.info(request, 'Only Students are eligible to access this page.')
-
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
 
+@login_required
+def payment_success_view(request):
+    return render(request, 'payment_success.html')
 
 @login_required
 def upgrade_view(request, membership_type):
@@ -356,21 +394,13 @@ def upgrade_view(request, membership_type):
         try:
             user_membership = Membership.objects.get(user=request.user)
             if membership_type == 'silver' and user_membership.membership_type != 'silver':
-                # Payment handling
-                # TODO
+                # Redirect to the currency selection page for Silver membership
+                return redirect(reverse('eAcademyApp:currency_selection', args=['silver']))
 
-                # Perform the upgrade to Silver logic
-                user_membership.membership_type = 'silver'
-                user_membership.save()
-                messages.success(request, 'You have successfully upgraded to Silver membership!')
             elif membership_type == 'gold' and user_membership.membership_type != 'gold':
-                # Payment handling
-                # TODO
+                # Redirect to the currency selection page for Gold membership
+                return redirect(reverse('eAcademyApp:currency_selection', args=['gold']))
 
-                # Perform the upgrade to Gold logic
-                user_membership.membership_type = 'gold'
-                user_membership.save()
-                messages.success(request, 'You have successfully upgraded to Gold membership!')
             else:
                 messages.warning(request, 'You are already subscribed to the selected membership tier.')
         except Membership.DoesNotExist:
@@ -380,9 +410,27 @@ def upgrade_view(request, membership_type):
     else:
         # Feedback message
         messages.info(request, 'Only Students are eligible to access this page.')
-
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
+
+
+@login_required
+def currency_selection(request, membership_type):
+    if request.user.userprofile.isstudent():
+        if request.method == 'POST':
+            # Retrieve the selected currency from the form submission
+            currency = request.POST.get('currency')
+            # Redirect to the payment page with the selected currency
+            return redirect('eAcademyApp:payment', membership_type=membership_type, currency=currency)
+        return render(request, 'currency_selection.html', {'membership_type': membership_type})
+    else:
+        # Feedback message
+        messages.info(request, 'Only Students are eligible to access this page.')
+        # Redirect to the homepage
+        return redirect(reverse('eAcademyApp:homepage'))
+
+
+
 
 
 @login_required

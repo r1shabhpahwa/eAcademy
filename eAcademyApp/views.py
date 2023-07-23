@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.urls import reverse
 import stripe
+import random
 from decimal import Decimal
 import os
 import requests
@@ -201,58 +202,84 @@ def aboutus(request):
     return render(request, 'aboutus.html')
 
 
+
+def generate_confirmation_code():
+    return str(random.randint(100000, 999999))
+
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+def send_forgot_mail(subject, to_email, context, template_name):
+    # Load the HTML template with the context data
+    html_message = render_to_string(template_name, context)
+
+    # Strip HTML tags to create a plain text version of the email
+    plain_message = strip_tags(html_message)
+
+    # Create the EmailMultiAlternatives object to send both HTML and plain text versions
+    email = EmailMultiAlternatives(subject, plain_message, from_email='ecademycorp@gmail.com', to=[to_email])
+    email.attach_alternative(html_message, 'text/html')
+    email.send()
+
+
 def forgot_password_view(request):
     if request.method == 'POST':
         # Handle the forgot password form submission
-        email = request.POST['email']
-        user = User.objects.filter(email=email).first()
+        username = request.POST.get('username', '')
+        try:
+            user = User.objects.get(username=username)
+        except User.DoesNotExist:
+            messages.error(request, 'This user does not exist. Enter a valid username to continue.')
+            return render(request, 'forgot_password.html')
 
-        if user:
-            # Send the confirmation code email to the user
-            confirmation_code = default_token_generator.make_token(user)
-            subject = 'eAcademy Account: Password Reset Confirmation Code'
-            message = f"Hi, registered user {email}, " \
-                      f"here is your confirmation code to reset password: " \
-                      f"{confirmation_code}."
-            from_email = 'ecademycorp@gmail.com'  # Replace with your Gmail email address
-            recipient_list = [email]
+        # Generate the 6-digit confirmation code as a string
+        confirmation_code = generate_confirmation_code()
+        confirmation_code_str = str(confirmation_code)
 
-            try:
-                send_mail(subject, message, from_email, recipient_list, fail_silently=True)
-                messages.success(request, f'A confirmation code has been sent to {email}.')
-                request.session['reset_email'] = email
-            except:
-                messages.error(request, 'Failed to send the confirmation code. Please try again later.')
-                return render(request, 'ForgotPassword.html')
+        subject = 'eAcademy Account: Password Reset Confirmation Code'
 
-        else:
-            messages.error(request, 'This user does not exist. Enter a valid email id to continue.')
-            return render(request, 'ForgotPassword.html')
+        context = {
+            'username': user.username,
+            'confirmation_code': confirmation_code_str,
+        }
+
+        try:
+            # Send email using an HTML template
+            send_forgot_mail(subject, user.email, context, 'forgot_password_email.html')
+            messages.success(request, f'A 6-digit confirmation code has been sent to {user.email}.')
+
+            # Save details in session
+            request.session['reset_username'] = user.username
+            request.session['confirmation_code'] = confirmation_code_str
+        except Exception as e:
+            messages.error(request, 'Failed to send the confirmation code. Please try again later.')
+            return render(request, 'forgot_password.html')
 
         # Redirect to the confirm code page
         return redirect(reverse('eAcademyApp:confirm_code'))
 
-    return render(request, 'ForgotPassword.html')
+    return render(request, 'forgot_password.html')
+
 
 
 def confirm_code_view(request):
     if request.method == 'POST':
         # Handle the confirmation code form submission
-        confirmation_code = request.POST['confirmation_code']
-        email = request.session.get('reset_email', None)
+        confirmation_code_entered = request.POST.get('confirmation_code', '').strip()
+        confirmation_code_stored = request.session.get('confirmation_code', None)
+        username = request.session.get('reset_username', None)
 
-        if email:
-            user = get_object_or_404(User, email=email)
-
+        if username and confirmation_code_stored:
             # Validate the confirmation code
-            if default_token_generator.check_token(user, confirmation_code):
+            if confirmation_code_entered == confirmation_code_stored:
                 # If the confirmation code is valid, proceed to the password reset page
                 return redirect(reverse('eAcademyApp:reset_password'))
             else:
                 # If the confirmation code is invalid, show an error message
                 messages.error(request, 'Invalid confirmation code. Please try again.')
         else:
-            messages.error(request, 'No email address found in the session. Please try again.')
+            messages.error(request, 'No username or confirmation code found in the session. Please try again.')
 
     return render(request, 'confirm_code.html')
 
@@ -262,10 +289,10 @@ def reset_password_view(request):
         # Handle the password reset form submission
         new_password = request.POST['new_password']
         confirm_password = request.POST['confirm_password']
-        email = request.session.get('reset_email', None)
+        username = request.session.get('reset_username', None)
 
-        if email:
-            user = get_object_or_404(User, email=email)
+        if username:
+            user = get_object_or_404(User, username=username)
 
             if new_password == confirm_password:
                 # If the passwords match, reset the user's password
@@ -285,7 +312,7 @@ def reset_password_view(request):
         else:
             messages.error(request, 'No email address found in the session. Please try again.')
 
-    return render(request, 'ResetPassword.html')
+    return render(request, 'reset_password.html')
 
 # ========================================================
 # Views for Students only

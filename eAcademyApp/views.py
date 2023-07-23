@@ -12,6 +12,7 @@ import os
 import requests
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
+from forex_python.converter import CurrencyRates
 
 # from .models import InstructorRequest
 from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm
@@ -311,8 +312,51 @@ def membership_view(request):
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
 
-def payment_success(request):
-    return render(request, 'payment_success.html')
+
+from forex_python.converter import CurrencyRates
+
+@login_required
+def upgrade_view(request, membership_type):
+    if request.user.userprofile.isstudent():
+        try:
+            user_membership = Membership.objects.get(user=request.user)
+            if membership_type == 'silver' and user_membership.membership_type != 'silver':
+                # Redirect to the currency selection page for Silver membership
+                return redirect(reverse('eAcademyApp:currency_selection', args=['silver']))
+
+            elif membership_type == 'gold' and user_membership.membership_type != 'gold':
+                # Redirect to the currency selection page for Gold membership
+                return redirect(reverse('eAcademyApp:currency_selection', args=['gold']))
+
+            else:
+                messages.warning(request, 'You are already subscribed to the selected membership tier.')
+        except Membership.DoesNotExist:
+            messages.error(request, 'Membership tiers are applicable only for students. ')
+
+        return redirect(reverse('eAcademyApp:membership'))
+    else:
+        # Feedback message
+        messages.info(request, 'Only Students are eligible to access this page.')
+        # Redirect to the homepage
+        return redirect(reverse('eAcademyApp:homepage'))
+
+
+@login_required
+def currency_selection(request, membership_type):
+    if request.user.userprofile.isstudent():
+        if request.method == 'POST':
+            # Retrieve the selected currency from the form submission
+            currency = request.POST.get('currency')
+            # Redirect to the payment page with the selected currency
+            return redirect(reverse('eAcademyApp:payment', args=[membership_type, currency]))
+        return render(request, 'currency_selection.html', {'membership_type': membership_type})
+    else:
+        # Feedback message
+        messages.info(request, 'Only Students are eligible to access this page.')
+        # Redirect to the homepage
+        return redirect(reverse('eAcademyApp:homepage'))
+
+
 @login_required
 def payment_view(request, membership_type, currency):
     if request.user.userprofile.isstudent():
@@ -328,27 +372,32 @@ def payment_view(request, membership_type, currency):
                 token = request.POST.get('stripeToken')
 
                 # Determine the amount based on the membership_type and currency
-                if membership_type == 'silver':
-                    if currency == 'USD':
-                        amount = 1000  # $10.00 USD (Amount in cents)
-                    elif currency == 'EUR':
-                        amount = 900  # €9.00 EUR (Amount in cents)
-                    elif currency == 'GBP':
-                        amount = 800  # £8.00 GBP (Amount in cents)
-                elif membership_type == 'gold':
-                    if currency == 'USD':
-                        amount = 1500  # $15.00 USD (Amount in cents)
-                    elif currency == 'EUR':
-                        amount = 1350  # €13.50 EUR (Amount in cents)
-                    elif currency == 'GBP':
-                        amount = 1200  # £12.00 GBP (Amount in cents)
+                membership_price = {
+                    'silver': {
+                        'USD': 1000,  # $10.00 USD (Amount in cents)
+                        'EUR': 900,   # €9.00 EUR (Amount in cents)
+                        'GBP': 800,   # £8.00 GBP (Amount in cents)
+                    },
+                    'gold': {
+                        'USD': 2000,  # $20.00 USD (Amount in cents)
+                        'EUR': 1800,  # €18.00 EUR (Amount in cents)
+                        'GBP': 1600,  # £16.00 GBP (Amount in cents)
+                    },
+                }
+
+                if membership_type in membership_price and currency in membership_price[membership_type]:
+                    amount = membership_price[membership_type][currency]
                 else:
                     raise Exception("Invalid combination of membership type and currency selected.")
 
+                # Convert the amount to USD for Stripe payment (Stripe requires USD as the currency)
+                c = CurrencyRates()
+                amount_usd = c.convert(currency, 'USD', amount / 100) * 100
+
                 # Create the charge using the appropriate amount and currency
                 charge = stripe.Charge.create(
-                    amount=amount,
-                    currency=currency.lower(),
+                    amount=amount_usd,
+                    currency='usd',
                     description='Payment',
                     source=token,
                 )
@@ -384,50 +433,10 @@ def payment_view(request, membership_type, currency):
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
 
+
 @login_required
-def payment_success_view(request):
+def payment_success(request):
     return render(request, 'payment_success.html')
-
-@login_required
-def upgrade_view(request, membership_type):
-    if request.user.userprofile.isstudent():
-        try:
-            user_membership = Membership.objects.get(user=request.user)
-            if membership_type == 'silver' and user_membership.membership_type != 'silver':
-                # Redirect to the currency selection page for Silver membership
-                return redirect(reverse('eAcademyApp:currency_selection', args=['silver']))
-
-            elif membership_type == 'gold' and user_membership.membership_type != 'gold':
-                # Redirect to the currency selection page for Gold membership
-                return redirect(reverse('eAcademyApp:currency_selection', args=['gold']))
-
-            else:
-                messages.warning(request, 'You are already subscribed to the selected membership tier.')
-        except Membership.DoesNotExist:
-            messages.error(request, 'Membership tiers are applicable only for students. ')
-
-        return redirect(reverse('eAcademyApp:membership'))
-    else:
-        # Feedback message
-        messages.info(request, 'Only Students are eligible to access this page.')
-        # Redirect to the homepage
-        return redirect(reverse('eAcademyApp:homepage'))
-
-
-@login_required
-def currency_selection(request, membership_type):
-    if request.user.userprofile.isstudent():
-        if request.method == 'POST':
-            # Retrieve the selected currency from the form submission
-            currency = request.POST.get('currency')
-            # Redirect to the payment page with the selected currency
-            return redirect('eAcademyApp:payment', membership_type=membership_type, currency=currency)
-        return render(request, 'currency_selection.html', {'membership_type': membership_type})
-    else:
-        # Feedback message
-        messages.info(request, 'Only Students are eligible to access this page.')
-        # Redirect to the homepage
-        return redirect(reverse('eAcademyApp:homepage'))
 
 
 

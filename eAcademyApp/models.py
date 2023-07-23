@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
+from PIL import Image
+
 
 
 class Course(models.Model):
@@ -14,11 +16,23 @@ class Course(models.Model):
     level_type = models.CharField(max_length=12, choices=LEVEL_CHOICES, default='beginner')
     instructor = models.ForeignKey(User, on_delete=models.CASCADE)
     files = models.FileField(upload_to='course_files/')
+    image = models.ImageField(upload_to='course_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.image:
+            # Resize the uploaded image to a smaller size for better performance
+            img = Image.open(self.image.path)
+
+            max_size = (300, 300)
+            if img.height > max_size[0] or img.width > max_size[1]:
+                img.thumbnail(max_size)
+                img.save(self.image.path)
 
 
 class Membership(models.Model):

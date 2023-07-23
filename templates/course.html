@@ -4,18 +4,18 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header">
-                <h2 class="mb-0">Explore our Extensive Course Catalog!</h2>
+                <h2 class="mb-0 text-center">Explore our Extensive Course Catalog!</h2>
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 mx-auto text-center">
                         {% if user.is_authenticated and user.userprofile.isteacher %}
                             <a href="/courses/create/" class="btn btn-success mt-3 mb-3">Create New Course</a>
                         {% endif %}
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
                         <div class="course-list">
                             {% for course in courses %}
                                 <div class="card mb-3">
@@ -28,7 +28,11 @@
                                         <h5 class="card-title"><strong>{{ course.title }}</strong></h5>
                                         <p class="card-text">{{ course.description }}</p>
                                         <p class="card-text"><strong>Course Level:</strong> {{ course.level_type.capitalize }}</p>
-                                        <p class="card-text"><strong>Instructor:</strong> {{ course.instructor.username }}</p>
+                                        <p class="card-text"><strong>Instructor:</strong> {{ course.instructor.first_name }} {{ course.instructor.last_name }}</p>
+                                        <div class="course-image">
+                                            <img src="{{ course.image.url }}" alt="{{ course.title }}" class="img-fluid">
+                                        </div>
+                                        <br>
                                         <a href="{{ course.files.url }}" class="btn btn-primary">Download Course Outline</a>
                                         {% if user.is_authenticated and user.userprofile.isstudent %}
                                             <div class="d-flex mt-3">

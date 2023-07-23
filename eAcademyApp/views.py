@@ -139,9 +139,10 @@ def course_list(request):
             for course in courses:
                 # Add a dynamic attribute 'is_in_cart' to each course
                 course.is_in_cart = CartItem.objects.filter(student=student, course=course).exists() if student else False
-                course.is_registered = Enrollment.objects.filter(student=student, course=course) if student else False
+                course.is_registered = Enrollment.objects.filter(student=student, course=course).exists() if student else False
 
     return render(request, 'course.html', {'courses': courses, 'user': user})
+
 
 
 def serve_course_file(request, file_name):

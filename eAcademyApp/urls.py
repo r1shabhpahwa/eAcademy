@@ -18,6 +18,8 @@ urlpatterns = [
     path('membership/upgrade/<str:membership_type>/payment/<str:currency>/', views.payment_view, name='payment'),
     path('payment/success/', views.payment_success, name='payment_success'),
     path('payment/', views.payment_view, name='payment'),
+    path('my_courses/', views.my_courses_view, name='my_courses'),
+
     path('dashboard/', views.dashboard, name='dashboard'),
     path('contact/', views.contact, name='contact'),
     path('aboutus/', views.aboutus, name='aboutus'),

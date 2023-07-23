@@ -456,10 +456,6 @@ def currency_selection(request, membership_type):
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
 
-
-
-
-
 @login_required
 def dashboard(request):
     # Check if the user is a student
@@ -612,6 +608,27 @@ def checkout(request):
 
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:course_list'))
+
+@login_required
+def my_courses_view(request):
+    user_profile = request.user.userprofile
+
+    if user_profile.isstudent():
+        # For students, retrieve the courses they are enrolled in
+        enrolled_courses = Enrollment.objects.filter(student=user_profile)
+        courses = [enrollment.course for enrollment in enrolled_courses]
+
+        return render(request, 'my_courses.html', {'courses': courses, 'is_student': True})
+
+    elif user_profile.isteacher():
+        # For professors, retrieve the courses they have created
+        created_courses = Course.objects.filter(instructor=request.user)
+        return render(request, 'my_courses.html', {'courses': created_courses, 'is_student': False})
+
+    else:
+        # Redirect to the homepage if the user is neither a student nor a professor
+        return redirect('eAcademyApp:homepage')
+
 
 
 def enrollment(request):

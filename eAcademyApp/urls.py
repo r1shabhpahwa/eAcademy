@@ -2,6 +2,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from . import views
+from django.contrib.auth import views as auth_views
 
 app_name = 'eAcademyApp'
 urlpatterns = [
@@ -27,5 +28,17 @@ urlpatterns = [
     path('instructor-requests/', views.instructor_requests_view, name='instructor_requests'),
     path('accept-instructor-request/<int:user_id>/', views.accept_instructor_request_view, name='accept_instructor_request'),
     path('reject-instructor-request/<int:user_id>/', views.reject_instructor_request_view, name='reject_instructor_request'),
+    # URL pattern for the forgot password feature
+    path('accounts/forgot-password/', views.forgot_password_view, name='forgot_password'),
 
+    # URL patterns for the built-in Django password reset views
+    path('accounts/reset-password/', auth_views.PasswordResetView.as_view(
+        template_name='ResetPassword.html',
+        email_template_name='reset_password_email.html',
+        success_url='/accounts/reset-password/done/'
+    ), name='password_reset'),
+
+
+    path('confirm-code/', views.confirm_code_view, name='confirm_code'),
+    path('reset-password/', views.reset_password_view, name='reset_password'),
 ]

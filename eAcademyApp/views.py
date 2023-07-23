@@ -40,10 +40,15 @@ def login_view(request):
             # Check if the user is approved as an instructor
             try:
                 instructor_request = InstructorRequest.objects.get(user=user)
-                if not instructor_request.is_approved:
+                if instructor_request.is_rejected:
+                    # If the instructor request is rejected, prevent login and show message
+                    messages.warning(request, 'Your request was denied. Please contact the admin!')
+                    return redirect('eAcademyApp:login')
+                elif not instructor_request.is_approved:
                     # If the instructor request is not approved, prevent login and show message
                     messages.warning(request, 'Not yet approved by the Admin. Please wait for approval!')
                     return redirect('eAcademyApp:login')
+
             except InstructorRequest.DoesNotExist:
                 pass  # The user is not an instructor
 
@@ -80,7 +85,6 @@ def register_view(request):
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
             password = form.cleaned_data['password1']
-            membership_type = form.cleaned_data['membership_type']
             register_as = form.cleaned_data['register_as']
 
             user = User.objects.create_user(
@@ -90,32 +94,32 @@ def register_view(request):
                 last_name=last_name,
                 password=password,
             )
-            # student = Student.objects.create(user=user, user_type='student')
-            student = UserProfile.objects.create(user=user, user_type=register_as)
 
+            # Save User Tpe in UserProfile Model
+            UserProfile.objects.create(user=user, user_type=register_as)
+
+            # If user is a student, set default membership type as Bronze
+            if register_as == 'student':
+                membership_type = 'bronze'
+                Membership.objects.create(user=user, membership_type=membership_type)
+                # Feedback message
+                messages.success(request, 'You have been successfully registered, please login now!')
+
+            # If user is a professor, send approval request
             if register_as == 'professor':
                 InstructorRequest.objects.create(user=user)
+                # Feedback message
                 messages.info(request, 'Your instructor request has been sent to the admin for approval.')
-
-
-            # Check if the selected membership type is an upgrade
-            if membership_type != 'bronze':
-                messages.info(request, 'This is a paid option. Silver costs $10 per month, and Gold is $20 per month.')
-                # Redirect to the payment page
-                return redirect(reverse('eAcademyApp:payment'))
-
-            Membership.objects.create(user=user, membership_type=membership_type)
-
-            # Feedback message
-            messages.info(request,
-                          'You have been successfully registered, please login now!')
 
             # Redirect to the login page
             return redirect(reverse('eAcademyApp:login'))
 
         else:
-            # Print form errors for debugging
-            print(form.errors)
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.warning(request, f"Error in {field}: {error}")
+
+
     else:
         form = ExtendedUserCreationForm()
     return render(request, 'register.html', {'form': form})
@@ -194,6 +198,7 @@ def contact(request):
 def aboutus(request):
     return render(request, 'aboutus.html')
 
+
 def forgot_password_view(request):
     if request.method == 'POST':
         # Handle the forgot password form submission
@@ -227,6 +232,7 @@ def forgot_password_view(request):
 
     return render(request, 'ForgotPassword.html')
 
+
 def confirm_code_view(request):
     if request.method == 'POST':
         # Handle the confirmation code form submission
@@ -246,7 +252,7 @@ def confirm_code_view(request):
         else:
             messages.error(request, 'No email address found in the session. Please try again.')
 
-    return render(request, 'ConfirmCode.html')
+    return render(request, 'confirm_code.html')
 
 
 def reset_password_view(request):
@@ -282,6 +288,7 @@ def reset_password_view(request):
 # ========================================================
 # Views for Students only
 # ========================================================
+
 
 @login_required
 def membership_view(request):
@@ -664,7 +671,8 @@ def reject_instructor_request_view(request, user_id):
     user = get_object_or_404(User, id=user_id)
     try:
         instructor_request = InstructorRequest.objects.get(user=user)
-        instructor_request.delete()
+        instructor_request.is_rejected = True
+        instructor_request.save()
         messages.success(request, f'Instructor request for {user.username} has been rejected.')
     except InstructorRequest.DoesNotExist:
         messages.error(request, 'Instructor request not found.')

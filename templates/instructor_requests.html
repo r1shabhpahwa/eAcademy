@@ -6,7 +6,7 @@
         <div class="col-md-10">
             <div class="card">
                 <div class="card-header">
-                    <h1 class="text-center mb-4">Instructor Requests</h1>
+                    <h2 class="text-center">Instructor Requests</h2>
                 </div>
                 <div class="card-body">
                     {% if instructor_requests %}
@@ -31,12 +31,14 @@
                                         <td class="text-center align-middle">
                                             {% if request.is_approved %}
                                                 <span class="text-success">Approved</span>
+                                            {% elif request.is_rejected %}
+                                                <span class="text-danger">Rejected</span>
                                             {% else %}
                                                 <span class="text-warning">Pending</span>
                                             {% endif %}
                                         </td>
                                         <td class="text-center align-middle">
-                                            {% if not request.is_approved %}
+                                            {% if not request.is_approved and not request.is_rejected %}
                                                 <form class="d-inline-block mr-2" method="post" action="{% url 'eAcademyApp:accept_instructor_request' request.user.id %}">
                                                     {% csrf_token %}
                                                     <button type="submit" class="btn btn-success">Accept</button>

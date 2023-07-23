@@ -24,29 +24,10 @@ body {
 
 
 
-/* Add spacing to the upgrade button in membership page */
-.btn-upgrade {
-    margin: 20px 20px;
-}
 
 
-.course-image img {
-    max-height: 250px;
-    width: 100%;
-    object-fit: cover;
-}
-
-.course-list .card {
-    margin-bottom: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
 
 
-/* custom.css */
-.custom-card {
-    margin: 0 auto;
-    max-width: 50%;
-}
 
 
 

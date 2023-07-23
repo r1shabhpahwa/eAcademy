@@ -96,7 +96,8 @@ class CartItem(models.Model):
 
 class InstructorRequest(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    is_approved = models.BooleanField(default=False)  # New field to track approval status
+    is_approved = models.BooleanField(default=False)
+    is_rejected = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Instructor Request - {self.user.username}"

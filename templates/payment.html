@@ -12,7 +12,11 @@
             {{ error }}
           </div>
         {% endif %}
-
+        <div class="text-center">
+            <p>Please confirm your payment details:</p>
+            <p>Amount: {{ amount_display }}</p>
+            <p>Currency: {{ currency_display }}</p>
+          </div>
         <form method="post">
           {% csrf_token %}
           <div class="text-center">
@@ -20,12 +24,12 @@
               src="https://checkout.stripe.com/checkout.js"
               class="stripe-button"
               data-key="{{ STRIPE_PUBLISHABLE_KEY }}"
-              data-amount="1000"
+              data-amount="{{ amount }}"
               data-name="eAcademyApp"
               data-description="Membership Upgrade"
               data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
               data-locale="auto"
-              data-currency="usd"
+              data-currency="{{ currency }}"
             >
             </script>
           </div>

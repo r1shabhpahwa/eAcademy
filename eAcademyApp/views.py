@@ -340,6 +340,8 @@ def membership_view(request):
 
 def payment_success(request):
     return render(request, 'payment_success.html')
+
+
 @login_required
 def payment_view(request, membership_type, currency):
     if request.user.userprofile.isstudent():
@@ -350,27 +352,34 @@ def payment_view(request, membership_type, currency):
             if membership_type not in membership_types or currency not in currencies:
                 raise Exception("Invalid combination of membership type and currency selected.")
 
+            # Initialize amount and amount_display
+            amount = 0
+            amount_display = 0
+
+            if membership_type == 'silver':
+                if currency == 'USD':
+                    amount = 1000  # $10.00 USD (Amount in cents)
+                elif currency == 'EUR':
+                    amount = 900  # €9.00 EUR (Amount in cents)
+                elif currency == 'GBP':
+                    amount = 800  # £8.00 GBP (Amount in cents)
+            elif membership_type == 'gold':
+                if currency == 'USD':
+                    amount = 1500  # $15.00 USD (Amount in cents)
+                elif currency == 'EUR':
+                    amount = 1350  # €13.50 EUR (Amount in cents)
+                elif currency == 'GBP':
+                    amount = 1200  # £12.00 GBP (Amount in cents)
+            else:
+                raise Exception("Invalid combination of membership type and currency selected.")
+
+            # Calculate the amount and currency display values for the template
+            amount_display = Decimal(amount) / 100
+            currency_display = currency.upper()
+
             if request.method == 'POST':
                 # Retrieve the payment token from the form submission
                 token = request.POST.get('stripeToken')
-
-                # Determine the amount based on the membership_type and currency
-                if membership_type == 'silver':
-                    if currency == 'USD':
-                        amount = 1000  # $10.00 USD (Amount in cents)
-                    elif currency == 'EUR':
-                        amount = 900  # €9.00 EUR (Amount in cents)
-                    elif currency == 'GBP':
-                        amount = 800  # £8.00 GBP (Amount in cents)
-                elif membership_type == 'gold':
-                    if currency == 'USD':
-                        amount = 1500  # $15.00 USD (Amount in cents)
-                    elif currency == 'EUR':
-                        amount = 1350  # €13.50 EUR (Amount in cents)
-                    elif currency == 'GBP':
-                        amount = 1200  # £12.00 GBP (Amount in cents)
-                else:
-                    raise Exception("Invalid combination of membership type and currency selected.")
 
                 # Create the charge using the appropriate amount and currency
                 charge = stripe.Charge.create(
@@ -399,7 +408,16 @@ def payment_view(request, membership_type, currency):
                 else:
                     messages.error(request, 'Payment was not successful. Please try again.')
 
-            return render(request, 'payment.html', {'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY})
+            # Pass the necessary data in the context dictionary
+            context = {
+                'STRIPE_PUBLISHABLE_KEY': settings.STRIPE_PUBLISHABLE_KEY,
+                'amount': amount,
+                'currency': currency,
+                'amount_display': amount_display,
+                'currency_display': currency_display,
+            }
+
+            return render(request, 'payment.html', context)
         except Exception as e:
             # Handle any other unexpected errors
             messages.error(request, str(e))
@@ -411,9 +429,11 @@ def payment_view(request, membership_type, currency):
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
 
+
 @login_required
 def payment_success_view(request):
     return render(request, 'payment_success.html')
+
 
 @login_required
 def upgrade_view(request, membership_type):

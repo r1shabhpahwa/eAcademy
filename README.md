@@ -39,7 +39,7 @@ pip install stripe
 1. Clone this repository to your local machine using Git:
 
 ```
-git clone https://github.com/your-username/eAcademy.git
+git clone https://github.com/r1shabhpahwa/eAcademy.git
 ```
 
 2. Navigate to the project directory:

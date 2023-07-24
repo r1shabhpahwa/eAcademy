@@ -300,7 +300,7 @@ def reset_password_view(request):
                 user.save()
 
                 # Clear the email from the session
-                del request.session['reset_email']
+                del request.session['reset_username']
 
                 # Add a success message to be shown on the login page
                 messages.success(request, 'Your password has been reset successfully. Please log in with your new password.')

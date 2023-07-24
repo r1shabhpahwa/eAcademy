@@ -608,27 +608,6 @@ def checkout(request):
         return redirect(reverse('eAcademyApp:course_list'))
 
 @login_required
-def my_courses_view(request):
-    user_profile = request.user.userprofile
-
-    if user_profile.isstudent():
-        # For students, retrieve the courses they are enrolled in
-        enrolled_courses = Enrollment.objects.filter(student=user_profile)
-        courses = [enrollment.course for enrollment in enrolled_courses]
-
-        return render(request, 'my_courses.html', {'courses': courses, 'is_student': True})
-
-    elif user_profile.isteacher():
-        # For professors, retrieve the courses they have created
-        created_courses = Course.objects.filter(instructor=request.user)
-        return render(request, 'my_courses.html', {'courses': created_courses, 'is_student': False})
-
-    else:
-        # Redirect to the homepage if the user is neither a student nor a professor
-        return redirect('eAcademyApp:homepage')
-
-
-@login_required
 def enrollment(request):
 
     if request.method == 'POST':
@@ -659,6 +638,23 @@ def enrollment(request):
 
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
+
+@login_required
+def student_courses(request):
+    if request.user.userprofile.isstudent():
+        # Get the enrollments for the current student user
+        enrollments = Enrollment.objects.filter(student=request.user.userprofile)
+
+        return render(request, 'student_courses.html', {'enrollments': enrollments})
+    else:
+        # Feedback message
+        messages.info(request, 'Only students are allowed to access this page.')
+
+        # Redirect to the homepage or any other appropriate page for non-students
+        return redirect(reverse('eAcademyApp:homepage'))
+
+
+
 
 # ========================================================
 # Views for all Instructors only

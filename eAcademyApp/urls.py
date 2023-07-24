@@ -17,9 +17,8 @@ urlpatterns = [
     path('membership/upgrade/<str:membership_type>/currency/', views.currency_selection, name='currency_selection'),
     path('membership/upgrade/<str:membership_type>/payment/<str:currency>/', views.payment_view, name='payment'),
     path('payment/success/', views.payment_success, name='payment_success'),
+    path('my_courses/', views.student_courses, name='student_courses'),
     path('payment/', views.payment_view, name='payment'),
-    path('my_courses/', views.my_courses_view, name='my_courses'),
-
     path('dashboard/', views.dashboard, name='dashboard'),
     path('contact/', views.contact, name='contact'),
     path('aboutus/', views.aboutus, name='aboutus'),
@@ -49,3 +48,5 @@ urlpatterns = [
     path('confirm-code/', views.confirm_code_view, name='confirm_code'),
     path('reset-password/', views.reset_password_view, name='reset_password'),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

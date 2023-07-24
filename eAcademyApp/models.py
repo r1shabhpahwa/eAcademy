@@ -2,7 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 from PIL import Image
-
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Course(models.Model):
@@ -19,7 +20,7 @@ class Course(models.Model):
     image = models.ImageField(upload_to='course_images/', blank=True, null=True, default='default.jpg')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    students = models.ManyToManyField(User, related_name='enrolled_courses', blank=True)
+
 
     def __str__(self):
         return self.title
@@ -98,7 +99,6 @@ class UserProfile(models.Model):
 
     def isstudent(self):
         return self.user_type == 'student'
-
 
 class CartItem(models.Model):
     student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)

@@ -97,8 +97,14 @@ def register_view(request):
                 password=password,
             )
 
-            # Save User Tpe in UserProfile Model
-            UserProfile.objects.create(user=user, user_type=register_as)
+            # Save User Type in UserProfile Model
+            UserProfile.objects.create(
+                user=user,
+                user_type=register_as,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+            )
 
             # If user is a student, set default membership type as Bronze
             if register_as == 'student':

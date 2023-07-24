@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'eAcademyApp.apps.EacademyappConfig',
     'eAcademyApp.templatetags'
+    'django_distill',
 ]
 
 MIDDLEWARE = [

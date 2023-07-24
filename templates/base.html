@@ -24,7 +24,12 @@
                 <li class="nav-item {% if request.path == '/courses/' %}active{% endif %}">
                     <a class="nav-link" href="/courses/">Courses</a>
                 </li>
-
+            <!-- Show "My Courses" link for authenticated student users -->
+                {% if request.user.is_authenticated and request.user.userprofile.isstudent %}
+                    <li class="nav-item {% if request.path == '/student_courses/' %}active{% endif %}">
+                        <a class="nav-link" href="{% url 'eAcademyApp:student_courses' %}">My Courses</a>
+                    </li>
+                {% endif %}
                 <!-- Show/Hide membership section -->
                 {% if request.user.is_authenticated and request.user.userprofile.isstudent %}
                     <li class="nav-item {% if request.path == '/membership/' %}active{% endif %}">

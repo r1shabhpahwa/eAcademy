@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title">My Courses</h5>
+            </div>
+            <div class="card-body">
+                {% if enrollments %}
+                    {% for enrollment in enrollments %}
+                        <h5 class="card-title">{{ enrollment.course.title }}</h5>
+                        <p class="card-text">{{ enrollment.course.description }}</p>
+                        <p class="card-text"><strong>Level:</strong> {{ enrollment.course.get_level_type_display }}</p>
+                        <p class="card-text"><strong>Instructor:</strong> {{ enrollment.course.instructor.first_name }} {{ enrollment.course.instructor.last_name }}</p>
+                        <h6 class="mt-4"><strong>Weekly Contents:</strong></h6>
+                        {% if enrollment.course.weeklycontent_set.exists %}
+                            <ul class="list-group">
+                                {% for weekly_content in enrollment.course.weeklycontent_set.all %}
+                                    <li class="list-group-item">
+                                        <strong>Week {{ weekly_content.week_number }}:</strong> {{ weekly_content.title }}
+                                        <br>
+                                        <small>{{ weekly_content.description }}</small>
+                                        <a class="btn btn-sm btn-primary mt-2" href="{{ weekly_content.content_file.url }}">Download Content File</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No content available yet.</p>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <p>No courses available.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

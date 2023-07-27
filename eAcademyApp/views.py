@@ -139,22 +139,26 @@ def logout_view(request):
     return redirect('eAcademyApp:homepage')
 
 
-
-@login_required
 def course_list(request):
     user = request.user
 
-    # Annotate each course with 'is_in_cart' based on the student's cart information
-    courses = Course.objects.annotate(
-        is_in_cart=Exists(CartItem.objects.filter(student=user.userprofile, course=OuterRef('pk')))
-    )
+    # Check if the user is authenticated
+    if user.is_authenticated:
+        # Annotate each course with 'is_in_cart' based on the student's cart information
+        courses = Course.objects.annotate(
+            is_in_cart=Exists(CartItem.objects.filter(student=user.userprofile, course=OuterRef('pk')))
+        )
 
-    # Annotate each course with 'is_registered' based on the student's enrollment information
-    courses = courses.annotate(
-        is_registered=Exists(Enrollment.objects.filter(student=user.userprofile, course=OuterRef('pk')))
-    )
+        # Annotate each course with 'is_registered' based on the student's enrollment information
+        courses = courses.annotate(
+            is_registered=Exists(Enrollment.objects.filter(student=user.userprofile, course=OuterRef('pk')))
+        )
+    else:
+        # If the user is not authenticated, show all public courses
+        courses = Course.objects.all()
 
     return render(request, 'course.html', {'courses': courses, 'user': user})
+
 
 
 

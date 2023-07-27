@@ -668,16 +668,17 @@ def enrollment(request):
 @login_required
 def student_courses(request):
     if request.user.userprofile.isstudent():
-        # Get the enrollments for the current student user
-        enrollments = Enrollment.objects.filter(student=request.user.userprofile)
+        # Get the StudentCourse objects for the current student user
+        student_courses = StudentCourse.objects.filter(student=request.user.userprofile)
 
-        return render(request, 'student_courses.html', {'enrollments': enrollments})
+        return render(request, 'student_courses.html', {'student_courses': student_courses})
     else:
         # Feedback message
         messages.info(request, 'Only students are allowed to access this page.')
 
         # Redirect to the homepage or any other appropriate page for non-students
         return redirect(reverse('eAcademyApp:homepage'))
+
 
 
 

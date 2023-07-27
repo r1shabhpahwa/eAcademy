@@ -1,10 +1,8 @@
-<!-- student_management.html -->
-
 {% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
-<div class="container mt-5  ">
+<div class="container mt-5">
     <div class="card mt-4">
         <div class="card-header">
             <h2>Student Management</h2>
@@ -15,7 +13,7 @@
                     <label for="courseSelect" class="col-sm-2 col-form-label">Select Course:</label>
                     <div class="col-sm-10">
                         <select name="course" id="courseSelect" class="form-control">
-                            <option value="" {% if not selected_course %}selected{% endif %}>All Courses</option>
+                            <option value="">Select a Course</option>
                             {% for course in courses %}
                                 <option value="{{ course.id }}" {% if selected_course and selected_course.id == course.id %}selected{% endif %}>{{ course.title }}</option>
                             {% endfor %}
@@ -30,41 +28,46 @@
             </form>
 
             {% if selected_course %}
-                <h2 class="mt-4">Students Enrolled in {{ selected_course.title }}</h2>
-                {% if students %}
-                    <form method="post" id="attendanceGradeForm">
-                        {% csrf_token %}
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Attendance</th>
-                                    <th>Grade</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for enrollment in students %}
-                                    <tr>
-                                        <td>{{ enrollment.student.user.get_full_name }}</td>
-                                        <td>{{ enrollment.student.user.email }}</td>
-                                        <td><input type="number" name="attendance_{{ enrollment.student.id }}" value="{{ enrollment.student.attendance }}" min="0" max="100"></td>
-                                        <td><input type="number" name="grade_{{ enrollment.student.id }}" value="{{ enrollment.student.grade }}" min="0" max="100" step="0.01"></td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                        <button type="submit" class="btn btn-success">Save Changes</button>
-                    </form>
-                {% else %}
-                    <div class="alert alert-info mt-3">
-                        No students registered for this course.
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h2>Students Enrolled in {{ selected_course.title }}</h2>
                     </div>
-                {% endif %}
+                    <div class="card-body">
+                        {% if students %}
+                            <form method="post" id="attendanceGradeForm">
+                                {% csrf_token %}
+                                <table class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Attendance</th>
+                                            <th>Grade</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for student_course in students %}
+                                            <tr>
+                                                <td>{{ student_course.student.user.get_full_name }}</td>
+                                                <td>{{ student_course.student.user.email }}</td>
+                                                <td><input type="number" name="attendance_{{ student_course.id }}" value="{{ student_course.attendance }}" min="0" max="100"></td>
+                                                <td><input type="number" name="grade_{{ student_course.id }}" value="{{ student_course.grade }}" min="0" max="100" step="0.01"></td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="submit" class="btn btn-success">Save Changes</button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-info mt-3">
+                                No students registered for this course.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
             {% endif %}
 
         </div>
     </div>
 </div>
-
 {% endblock %}

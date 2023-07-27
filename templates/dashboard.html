@@ -16,13 +16,13 @@
                     </ul>
 
                     <h5 class="mt-4">Courses Enrolled:</h5>
-                    {% if enrollments %}
+                    {% if student_courses %}
                         <ul class="list-group">
-                            {% for enrollment in enrollments %}
+                            {% for student_course in student_courses %}
                                 <li class="list-group-item">
-                                    <strong>Course:</strong> {{ enrollment.course.title }}<br>
-                                    <strong>Grade:</strong> {{ enrollment.student.grade }}<br>
-                                    <strong>Attendance:</strong> {{ enrollment.student.attendance }}<br>
+                                    <strong>Course:</strong> {{ student_course.course.title }}<br>
+                                    <strong>Grade:</strong> {{ student_course.grade }}<br>
+                                    <strong>Attendance:</strong> {{ student_course.attendance }}<br>
                                 </li>
                             {% endfor %}
                         </ul>

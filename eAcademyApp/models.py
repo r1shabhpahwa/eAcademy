@@ -88,8 +88,6 @@ class UserProfile(models.Model):
     first_name = models.CharField(max_length=100, null=True)
     last_name = models.CharField(max_length=100, null=True)
     email = models.EmailField(unique=True, null=True)
-    attendance = models.PositiveIntegerField(default=0)
-    grade = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
 
     def __str__(self):
         return self.user.username
@@ -124,4 +122,15 @@ class Enrollment(models.Model):
 
     def __str__(self):
         return f"{self.student.user.username} - {self.course.title}"
+
+
+class StudentCourse(models.Model):
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    grade = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    attendance = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.student.user.username} - {self.course.title}"
+
 

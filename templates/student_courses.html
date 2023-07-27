@@ -7,28 +7,32 @@
                 <h2 class="card-title text-center">My Courses</h2>
             </div>
             <div class="card-body">
-                {% if enrollments %}
-                    {% for enrollment in enrollments %}
-                        <h5 class="card-title">{{ enrollment.course.title }}</h5>
-                        <p class="card-text">{{ enrollment.course.description }}</p>
-                        <p class="card-text"><strong>Level:</strong> {{ enrollment.course.get_level_type_display }}</p>
-                        <p class="card-text"><strong>Instructor:</strong> {{ enrollment.course.instructor.first_name }} {{ enrollment.course.instructor.last_name }}</p>
-                        <h6 class="mt-4"><strong>Weekly Contents:</strong></h6>
-                        {% if enrollment.course.weeklycontent_set.exists %}
-                            <ul class="list-group">
-                                {% for weekly_content in enrollment.course.weeklycontent_set.all %}
-                                    <li class="list-group-item">
-                                        <strong>Week {{ weekly_content.week_number }}:</strong> {{ weekly_content.title }}
-                                        <br>
-                                        <small>{{ weekly_content.description }}</small>
-                                        <br>
-                                        <a class="btn btn-sm btn-primary mt-2" href="{{ weekly_content.content_file.url }}">Download Content File</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p>No content available yet.</p>
-                        {% endif %}
+                {% if student_courses %}
+                    {% for student_course in student_courses %}
+                        <div class="card mb-4"> <!-- Add margin-bottom here -->
+                            <div class="card-body">
+                                <h5 class="card-title">{{ student_course.course.title }}</h5>
+                                <p class="card-text">{{ student_course.course.description }}</p>
+                                <p class="card-text"><strong>Level:</strong> {{ student_course.course.get_level_type_display }}</p>
+                                <p class="card-text"><strong>Instructor:</strong> {{ student_course.course.instructor.first_name }} {{ student_course.course.instructor.last_name }}</p>
+                                <h6 class="mt-4"><strong>Weekly Contents:</strong></h6>
+                                {% if student_course.course.weeklycontent_set.exists %}
+                                    <ul class="list-group">
+                                        {% for weekly_content in student_course.course.weeklycontent_set.all %}
+                                            <li class="list-group-item">
+                                                <strong>Week {{ weekly_content.week_number }}:</strong> {{ weekly_content.title }}
+                                                <br>
+                                                <small>{{ weekly_content.description }}</small>
+                                                <br>
+                                                <a class="btn btn-sm btn-primary mt-2" href="{{ weekly_content.content_file.url }}">Download Content File</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p>No content available yet.</p>
+                                {% endif %}
+                            </div>
+                        </div>
                     {% endfor %}
                 {% else %}
                     <p>No courses available.</p>

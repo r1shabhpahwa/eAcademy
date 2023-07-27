@@ -11,6 +11,7 @@ import random
 from decimal import Decimal
 import os
 import requests
+from django.db.models import BooleanField, Case, Exists, OuterRef, When
 from django.core.mail import send_mail
 from django.contrib.auth.tokens import default_token_generator
 
@@ -138,22 +139,26 @@ def logout_view(request):
     return redirect('eAcademyApp:homepage')
 
 
-def course_list(request):
-    courses = Course.objects.all()
 
-    # Check if the user is authenticated and retrieve the student instance if available
+@login_required
+def course_list(request):
     user = request.user
 
-    if user.is_authenticated and not user.is_superuser:
-        if user.userprofile.isstudent():
-            student = user.userprofile
+    # Annotate each course with 'is_in_cart' based on the student's cart information
+    courses = Course.objects.annotate(
+        is_in_cart=Exists(CartItem.objects.filter(student=user.userprofile, course=OuterRef('pk')))
+    )
 
-            for course in courses:
-                # Add a dynamic attribute 'is_in_cart' to each course
-                course.is_in_cart = CartItem.objects.filter(student=student, course=course).exists() if student else False
-                course.is_registered = Enrollment.objects.filter(student=student, course=course).exists() if student else False
+    # Annotate each course with 'is_registered' based on the student's enrollment information
+    courses = courses.annotate(
+        is_registered=Exists(Enrollment.objects.filter(student=user.userprofile, course=OuterRef('pk')))
+    )
 
     return render(request, 'course.html', {'courses': courses, 'user': user})
+
+
+
+
 
 
 

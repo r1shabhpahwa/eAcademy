@@ -62,7 +62,7 @@ class StudentUpdateForm(forms.Form):
 
         for student in students:
             self.fields[f'attendance_{student.id}'] = forms.IntegerField(
-                label=f'Attendance for {student.first_name} {student.last_name}',
+                label=f'Attendance for {student.student.user.first_name} {student.student.user.last_name}',
                 initial=student.attendance,
                 min_value=0,
                 max_value=100,
@@ -70,7 +70,7 @@ class StudentUpdateForm(forms.Form):
             )
 
             self.fields[f'grade_{student.id}'] = forms.DecimalField(
-                label=f'Grade for {student.first_name} {student.last_name}',
+                label=f'Grade for {student.student.user.first_name} {student.student.user.last_name}',
                 initial=student.grade,
                 min_value=0,
                 max_value=100,

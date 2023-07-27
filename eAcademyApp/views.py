@@ -16,7 +16,7 @@ from django.contrib.auth.tokens import default_token_generator
 
 # from .models import InstructorRequest
 from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm, WeeklyContentForm
-from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment, WeeklyContent
+from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment, WeeklyContent, StudentCourse
 
 # Stripe API Key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -489,10 +489,10 @@ def dashboard(request):
         # Retrieve the currently logged-in student user
         student_user = request.user.userprofile
 
-        # Get the enrollments of the student (courses enrolled by the student)
-        enrollments = Enrollment.objects.filter(student=student_user)
+        # Get the student's courses along with their grades and attendance
+        student_courses = StudentCourse.objects.filter(student=student_user)
 
-        return render(request, 'dashboard.html', {'student_user': student_user, 'enrollments': enrollments})
+        return render(request, 'dashboard.html', {'student_user': student_user, 'student_courses': student_courses})
     else:
         # Feedback message
         messages.info(request, 'Only Students are eligible to access this page.')
@@ -749,20 +749,20 @@ def student_management(request):
         course_id = request.GET.get('course')
         if course_id:
             selected_course = get_object_or_404(Course, id=course_id)
-            students = Enrollment.objects.filter(course=selected_course)
+            students = StudentCourse.objects.filter(course=selected_course)
 
     elif request.method == 'POST':
         for key, value in request.POST.items():
             if key.startswith('attendance_'):
                 student_id = key.split('_')[1]
-                student = get_object_or_404(UserProfile, id=student_id)
-                student.attendance = int(value)
-                student.save()
+                student_course = get_object_or_404(StudentCourse, id=student_id)
+                student_course.attendance = int(value)
+                student_course.save()
             elif key.startswith('grade_'):
                 student_id = key.split('_')[1]
-                student = get_object_or_404(UserProfile, id=student_id)
-                student.grade = float(value)
-                student.save()
+                student_course = get_object_or_404(StudentCourse, id=student_id)
+                student_course.grade = float(value)
+                student_course.save()
 
         messages.success(request, 'Your changes have been saved.')
 
@@ -773,7 +773,6 @@ def student_management(request):
         'students': students,
     }
     return render(request, 'student_management.html', context)
-
 
 
 

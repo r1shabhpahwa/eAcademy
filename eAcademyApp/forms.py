@@ -54,26 +54,3 @@ class WeeklyContentForm(forms.ModelForm):
         if user and user.userprofile.isteacher():
             self.fields['course'].queryset = Course.objects.filter(instructor=user)
 
-
-class StudentUpdateForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        students = kwargs.pop('students')
-        super(StudentUpdateForm, self).__init__(*args, **kwargs)
-
-        for student in students:
-            self.fields[f'attendance_{student.id}'] = forms.IntegerField(
-                label=f'Attendance for {student.student.user.first_name} {student.student.user.last_name}',
-                initial=student.attendance,
-                min_value=0,
-                max_value=100,
-                widget=forms.NumberInput(attrs={'class': 'form-control'}),
-            )
-
-            self.fields[f'grade_{student.id}'] = forms.DecimalField(
-                label=f'Grade for {student.student.user.first_name} {student.student.user.last_name}',
-                initial=student.grade,
-                min_value=0,
-                max_value=100,
-                decimal_places=2,
-                widget=forms.NumberInput(attrs={'class': 'form-control'}),
-            )

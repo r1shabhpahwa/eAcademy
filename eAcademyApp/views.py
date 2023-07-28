@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -12,11 +11,7 @@ from decimal import Decimal
 import os
 import requests
 from django.db.models import BooleanField, Case, Exists, OuterRef, When
-from django.core.mail import send_mail
-from django.contrib.auth.tokens import default_token_generator
-
-# from .models import InstructorRequest
-from .forms import ExtendedUserCreationForm, CourseForm, StudentUpdateForm, WeeklyContentForm
+from .forms import ExtendedUserCreationForm, CourseForm, WeeklyContentForm
 from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment, WeeklyContent, StudentCourse
 
 # Stripe API Key
@@ -160,13 +155,6 @@ def course_list(request):
     return render(request, 'course.html', {'courses': courses, 'user': user})
 
 
-
-
-
-
-
-
-
 def serve_course_file(request, file_name):
     file_path = os.path.join('course_files', file_name)
 
@@ -275,8 +263,6 @@ def forgot_password_view(request):
         return redirect(reverse('eAcademyApp:confirm_code'))
 
     return render(request, 'forgot_password.html')
-
-
 
 def confirm_code_view(request):
     if request.method == 'POST':
@@ -443,12 +429,6 @@ def payment_view(request, membership_type, currency):
         messages.info(request, 'Only Students are eligible to access this page.')
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
-
-
-@login_required
-def payment_success_view(request):
-    return render(request, 'payment_success.html')
-
 
 @login_required
 def upgrade_view(request, membership_type):

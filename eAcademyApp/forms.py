@@ -46,6 +46,13 @@ class WeeklyContentForm(forms.ModelForm):
         model = WeeklyContent
         fields = ['course', 'week_number', 'title', 'description', 'content_file']
 
+        widgets = {
+            'course': forms.Select(attrs={'class': 'form-control'}),
+            'week_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'content_file': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+    }
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)

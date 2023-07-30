@@ -43,6 +43,7 @@ class WeeklyContent(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
     content_file = models.FileField(upload_to='weekly_content/')
+    assignment_file = models.FileField(upload_to='weekly_content/assignment/', default='Lec_2_-_Python_Programming_L3gQPaa.pdf')
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

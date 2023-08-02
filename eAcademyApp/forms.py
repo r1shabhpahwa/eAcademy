@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Membership, Course, UserProfile, WeeklyContent
+from .models import Membership, Course, UserProfile, WeeklyContent, StudentAssignment
 
 
 class ExtendedUserCreationForm(UserCreationForm):
@@ -62,4 +62,14 @@ class WeeklyContentForm(forms.ModelForm):
         # Filter the courses based on the user's instructor status
         if user and user.userprofile.isteacher():
             self.fields['course'].queryset = Course.objects.filter(instructor=user)
+
+
+class AssignmentAnswerForm(forms.ModelForm):
+    class Meta:
+        model = StudentAssignment
+        fields = ['weekly_content', 'assignment_answer_file']
+        widgets = {
+            'assignment_answer_file': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+        }
+
 

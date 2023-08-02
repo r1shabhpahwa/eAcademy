@@ -46,6 +46,7 @@ class WeeklyContent(models.Model):
     assignment_file = models.FileField(upload_to='weekly_content/assignment/', default='Lec_2_-_Python_Programming_L3gQPaa.pdf')
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    max_grade = models.DecimalField(max_digits=5, decimal_places=2, default=100.0)
 
     def __str__(self):
         return f"{self.course.title} - Week {self.week_number}: {self.title}"
@@ -128,10 +129,20 @@ class Enrollment(models.Model):
 class StudentCourse(models.Model):
     student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    grade = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
-    attendance = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return f"{self.student.user.username} - {self.course.title}"
 
+class StudentAssignment(models.Model):
+    student = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    weekly_content = models.ForeignKey(WeeklyContent, on_delete=models.CASCADE)
+    assignment_answer_file = models.FileField(upload_to='student_assignment_answers/', blank=True, null=True)
+    grade = models.DecimalField(max_digits=5, decimal_places=2, default=0.0)
+    attendance = models.PositiveIntegerField(default=0)
 
+    def get_assignment_file_url(self):
+        if self.assignment_answer_file:
+            return self.assignment_answer_file.url
+        return None
+    def __str__(self):
+        return f"{self.student.user.username} - Week {self.weekly_content.week_number}: {self.weekly_content.title}"

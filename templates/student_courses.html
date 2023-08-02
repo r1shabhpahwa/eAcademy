@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
     <div class="container mt-4">
         <div class="card">
@@ -9,12 +9,10 @@
             <div class="card-body">
                 {% if student_courses %}
                     {% for student_course in student_courses %}
-                        <div class="card mb-4"> <!-- Add margin-bottom here -->
+                        <div class="card mb-4">
                             <div class="card-body">
                                 <h5 class="card-title">{{ student_course.course.title }}</h5>
-                                <p class="card-text">{{ student_course.course.description }}</p>
-                                <p class="card-text"><strong>Level:</strong> {{ student_course.course.get_level_type_display }}</p>
-                                <p class="card-text"><strong>Instructor:</strong> {{ student_course.course.instructor.first_name }} {{ student_course.course.instructor.last_name }}</p>
+                                <!-- Rest of the card content -->
                                 <h6 class="mt-4"><strong>Weekly Contents:</strong></h6>
                                 {% if student_course.course.weeklycontent_set.exists %}
                                     <ul class="list-group">
@@ -27,7 +25,20 @@
                                                 <a class="btn btn-sm btn-primary mt-2" href="{{ weekly_content.content_file.url }}">Download Content File</a>
                                                 <br>
                                                 <a class="btn btn-sm btn-primary mt-2" href="{{ weekly_content.assignment_file.url }}">Download Assignment File</a>
-
+                                                <br>
+                                                <br>
+                                                <form method="post" enctype="multipart/form-data">
+                                                    {% csrf_token %}
+                                                    {{ formset.management_form }}
+                                                    {% for form in formset %}
+                                                        {% if form.instance.weekly_content == weekly_content %}
+                                                            <p><strong>Uploaded File:</strong> {{ form.instance.assignment_answer_file.name }}</p>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {{ formset.empty_form.assignment_answer_file }}
+                                                    <input type="hidden" name="week_number" value="{{ weekly_content.week_number }}">
+                                                    <input type="submit" class="btn btn-sm btn-primary mt-2" value="Submit Answer">
+                                                </form>
                                             </li>
                                         {% endfor %}
                                     </ul>

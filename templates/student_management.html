@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block content %}
 <div class="container mt-5">
@@ -11,7 +10,7 @@
             <form method="get">
                 <div class="form-group row">
                     <label for="courseSelect" class="col-sm-2 col-form-label">Select Course:</label>
-                    <div class="col-sm-10">
+                    <div class="col-sm-4">
                         <select name="course" id="courseSelect" class="form-control">
                             <option value="">Select a Course</option>
                             {% for course in courses %}
@@ -36,26 +35,46 @@
                         {% if students %}
                             <form method="post" id="attendanceGradeForm">
                                 {% csrf_token %}
-                                <table class="table table-bordered table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Email</th>
-                                            <th>Attendance</th>
-                                            <th>Grade</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for student_course in students %}
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-striped">
+                                        <thead>
                                             <tr>
-                                                <td>{{ student_course.student.user.get_full_name }}</td>
-                                                <td>{{ student_course.student.user.email }}</td>
-                                                <td><input type="number" name="attendance_{{ student_course.id }}" value="{{ student_course.attendance }}" min="0" max="100"></td>
-                                                <td><input type="number" name="grade_{{ student_course.id }}" value="{{ student_course.grade }}" min="0" max="100" step="0.01"></td>
+                                                <th>Name</th>
+                                                <th>Email</th>
+                                                <th>Attendance</th>
+                                                <th>Grade</th>
+                                                <th>Assignment Files</th>
                                             </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            {% for student_course in students %}
+                                                {% with student_assignment=student_course.student.studentassignment_set.filter(weekly_content__course=selected_course).first %}
+                                                <tr>
+                                                    <td>{{ student_course.student.user.get_full_name }}</td>
+                                                    <td>{{ student_course.student.user.email }}</td>
+                                                    <td>
+                                                        <input type="number" name="attendance_{{ student_course.id }}" value="{% if student_assignment %}{{ student_assignment.attendance }}{% else %}0{% endif %}" min="0" max="100">
+                                                    </td>
+                                                    <td>
+                                                        <input type="number" name="grade_{{ student_course.id }}" value="{% if student_assignment %}{{ student_assignment.grade }}{% else %}0.0{% endif %}" min="0" max="100" step="0.01">
+                                                    </td>
+                                                    <td>
+                                                        {% for assignment in student_course.student.studentassignment_set.filter(weekly_content__course=selected_course) %}
+                                                            Week {{ assignment.weekly_content.week_number }}:
+                                                            {% if assignment.assignment_answer_file %}
+                                                                <a class="btn btn-sm btn-primary" href="{{ assignment.get_assignment_file_url }}">Download Assignment File</a>
+                                                            {% else %}
+                                                                Not submitted by user yet.
+                                                            {% endif %}
+                                                            <br>
+                                                        {% endfor %}
+                                                    </td>
+                                                </tr>
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
                                 <button type="submit" class="btn btn-success">Save Changes</button>
                             </form>
                         {% else %}

@@ -10,9 +10,10 @@ import random
 from decimal import Decimal
 import os
 import requests
+from django.forms import modelformset_factory
 from django.db.models import BooleanField, Case, Exists, OuterRef, When
-from .forms import ExtendedUserCreationForm, CourseForm, WeeklyContentForm
-from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment, WeeklyContent, StudentCourse
+from .forms import ExtendedUserCreationForm, CourseForm, WeeklyContentForm, AssignmentAnswerForm
+from .models import Membership, Course, UserProfile, User, CartItem, InstructorRequest, Enrollment, Payment, WeeklyContent, StudentAssignment, StudentCourse
 
 # Stripe API Key
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -654,19 +655,38 @@ def enrollment(request):
         # Redirect to the homepage
         return redirect(reverse('eAcademyApp:homepage'))
 
+
+
 @login_required
 def student_courses(request):
     if request.user.userprofile.isstudent():
-        # Get the StudentCourse objects for the current student user
         student_courses = StudentCourse.objects.filter(student=request.user.userprofile)
+        weekly_contents = WeeklyContent.objects.filter(course__studentcourse__student=request.user.userprofile)
 
-        return render(request, 'student_courses.html', {'student_courses': student_courses})
+        # Create a formset for AssignmentAnswerForm
+        AssignmentAnswerFormSet = modelformset_factory(StudentAssignment, form=AssignmentAnswerForm, extra=len(weekly_contents), can_delete=False)
+
+        if request.method == 'POST':
+            formset = AssignmentAnswerFormSet(request.POST, request.FILES, queryset=StudentAssignment.objects.filter(student=request.user.userprofile))
+            if formset.is_valid():
+                formset.save()
+
+                # Print the saved formset data to check if it contains the uploaded files
+                for form in formset:
+                    print("Assignment Answer File:", form.instance.assignment_answer_file)
+
+                messages.success(request, 'Answers submitted successfully.')
+                return redirect('eAcademyApp:student_courses')
+            else:
+                # Print formset errors in case of validation errors
+                print("Formset errors:", formset.errors)
+        else:
+            formset = AssignmentAnswerFormSet(queryset=StudentAssignment.objects.none())
+
+        return render(request, 'student_courses.html', {'student_courses': student_courses, 'formset': formset, 'weekly_contents': weekly_contents})
     else:
-        # Feedback message
         messages.info(request, 'Only students are allowed to access this page.')
-
-        # Redirect to the homepage or any other appropriate page for non-students
-        return redirect(reverse('eAcademyApp:homepage'))
+        return redirect('eAcademyApp:homepage')
 
 
 
@@ -726,6 +746,12 @@ def upload_content(request):
         return redirect(reverse('eAcademyApp:course_list'))
 
 
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from .models import Course, StudentCourse, StudentAssignment
+from .forms import AssignmentAnswerForm
+
 @login_required
 def student_management(request):
     if not request.user.userprofile.isteacher():
@@ -737,22 +763,32 @@ def student_management(request):
 
     if request.method == 'GET':
         course_id = request.GET.get('course')
+
         if course_id:
             selected_course = get_object_or_404(Course, id=course_id)
             students = StudentCourse.objects.filter(course=selected_course)
+
+            # Fetch StudentAssignment objects for each student_course
+            for student_course in students:
+                student_assignment = StudentAssignment.objects.filter(student=student_course.student, weekly_content__course=student_course.course).first()
+                student_course.assignment = student_assignment
 
     elif request.method == 'POST':
         for key, value in request.POST.items():
             if key.startswith('attendance_'):
                 student_id = key.split('_')[1]
                 student_course = get_object_or_404(StudentCourse, id=student_id)
-                student_course.attendance = int(value)
-                student_course.save()
+                student_assignment = StudentAssignment.objects.filter(student=student_course.student, weekly_content__course=student_course.course).first()
+                if student_assignment:
+                    student_assignment.attendance = int(value)
+                    student_assignment.save()
             elif key.startswith('grade_'):
                 student_id = key.split('_')[1]
                 student_course = get_object_or_404(StudentCourse, id=student_id)
-                student_course.grade = float(value)
-                student_course.save()
+                student_assignment = StudentAssignment.objects.filter(student=student_course.student, weekly_content__course=student_course.course).first()
+                if student_assignment:
+                    student_assignment.grade = float(value)
+                    student_assignment.save()
 
         messages.success(request, 'Your changes have been saved.')
 
@@ -763,6 +799,7 @@ def student_management(request):
         'students': students,
     }
     return render(request, 'student_management.html', context)
+
 
 
 

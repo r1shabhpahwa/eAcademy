@@ -2,6 +2,34 @@
 
 {% block content %}
     <div class="container mt-5">
+
+   <form method="GET" class="form-inline justify-content-center mb-4">
+    <div class="form-row align-items-center">
+        <div class="col-md-4 mt-2 mt-md-0">
+            <label class="sr-only" for="level-filter">Level Filter</label>
+            <select name="level" id="level-filter" class="form-control">
+                <option value="">All Levels</option>
+                {% for choice in level_choices %}
+                    <option value="{{ choice.0 }}" {% if level_filter == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+            <div class="col-md-5">
+            <label class="sr-only" for="search-input">Search Courses</label>
+            <div class="input-group">
+                <input type="text" name="q" id="search-input" class="form-control" placeholder="Search courses...">
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mt-2 mt-md-0">
+            <a href="{% url 'eAcademyApp:course_list' %}" class="btn btn-block btn-secondary">Clear Filters</a>
+        </div>
+    </div>
+</form>
+
         <div class="card">
             <div class="card-header">
                 <h2 class="mb-0 text-center">Explore our Extensive Course Catalog!</h2>

@@ -134,8 +134,13 @@ def logout_view(request):
     return redirect('eAcademyApp:homepage')
 
 
+from django.db.models import Q
+
 def course_list(request):
     user = request.user
+    search_query = request.GET.get('q')
+    level_filter = request.GET.get('level')
+    level_choices = Course.LEVEL_CHOICES
 
     # Check if the user is authenticated
     if user.is_authenticated:
@@ -152,7 +157,16 @@ def course_list(request):
         # If the user is not authenticated, show all public courses
         courses = Course.objects.all()
 
-    return render(request, 'course.html', {'courses': courses, 'user': user})
+    # Handle search functionality
+    if search_query:
+        courses = courses.filter(Q(title__icontains=search_query) | Q(description__icontains=search_query))
+
+    # Handle level filter
+    if level_filter and level_filter in [choice[0] for choice in Course.LEVEL_CHOICES]:
+        courses = courses.filter(level_type=level_filter)
+
+    return render(request, 'course.html', {'courses': courses, 'user': user, 'level_choices': level_choices, 'level_filter': level_filter})
+
 
 
 def serve_course_file(request, file_name):
@@ -656,11 +670,22 @@ def enrollment(request):
 
 @login_required
 def student_courses(request):
+    search_query = request.GET.get('q')
+    level_filter = request.GET.get('level')
+    level_choices = Course.LEVEL_CHOICES
     if request.user.userprofile.isstudent():
         # Get the StudentCourse objects for the current student user
         student_courses = StudentCourse.objects.filter(student=request.user.userprofile)
 
-        return render(request, 'student_courses.html', {'student_courses': student_courses})
+        # Search functionality
+        search_query = request.GET.get('q')
+        if search_query:
+            student_courses = student_courses.filter(course__title__icontains=search_query)
+
+        if level_filter and level_filter in [choice[0] for choice in Course.LEVEL_CHOICES]:
+            student_courses = student_courses.filter(course__level_type=level_filter)
+
+        return render(request, 'student_courses.html', {'student_courses': student_courses, 'level_choices': level_choices, 'level_filter': level_filter})
     else:
         # Feedback message
         messages.info(request, 'Only students are allowed to access this page.')
